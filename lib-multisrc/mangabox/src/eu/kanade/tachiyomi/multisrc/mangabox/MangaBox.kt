@@ -41,6 +41,7 @@ import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CountDownLatch
 import java.util.regex.Pattern
+import kotlin.math.absoluteValue
 
 abstract class MangaBox(
     override val name: String,
@@ -129,13 +130,21 @@ abstract class MangaBox(
             try {
                 val canvas = Canvas(result)
 
-                val firstReq = chain.proceed(request.newBuilder().url(first).build())
-                val firstBitmap = BitmapFactory.decodeStream(firstReq.body.byteStream())
+                val firstBitmap = BitmapFactory.decodeStream(
+                    chain
+                        .proceed(request.newBuilder().url(first).build())
+                        .body
+                        .byteStream(),
+                )
                 canvas.drawBitmap(firstBitmap, 0f, 0f, null)
                 firstBitmap.recycle()
 
-                val secondReq = chain.proceed(request.newBuilder().url(second).build())
-                val secondBitmap = BitmapFactory.decodeStream(secondReq.body.byteStream())
+                val secondBitmap = BitmapFactory.decodeStream(
+                    chain
+                        .proceed(request.newBuilder().url(second).build())
+                        .body
+                        .byteStream(),
+                )
                 canvas.drawBitmap(secondBitmap, 0f, m.toFloat(), null)
                 secondBitmap.recycle()
 
@@ -446,6 +455,11 @@ abstract class MangaBox(
         return arrayValues
     }
 
+    private fun isPageAspectRatio(w: Int, h: Int): Boolean {
+        val ratio = w.toFloat() / h.toFloat()
+        return (ratio - 0.703125f).absoluteValue < 0.02 || (ratio - 1.40625f).absoluteValue < 0.04
+    }
+
     override fun pageListParse(document: Document): List<Page> {
         val content = document.select("script:containsData(cdns =)").joinToString("\n") { it.data() }
         val cdns =
@@ -513,7 +527,13 @@ abstract class MangaBox(
             val httpUrl = "https://127.0.0.1/merge".toHttpUrl()
 
             for ((url, size) in imageUrls.zip(sizes.asSequence())) {
-                if (size != null && prevSize != null && size.first == prevSize.first && size.first > 4 * size.second) {
+                if (
+                    size != null &&
+                    prevSize != null &&
+                    size.first == prevSize.first &&
+                    !isPageAspectRatio(size.first, size.second) &&
+                    isPageAspectRatio(prevSize.first, prevSize.second + size.second)
+                ) {
                     pageList.last().imageUrl = httpUrl.newBuilder()
                         .setQueryParameter("1", pageList.last().imageUrl)
                         .setQueryParameter("2", url)
