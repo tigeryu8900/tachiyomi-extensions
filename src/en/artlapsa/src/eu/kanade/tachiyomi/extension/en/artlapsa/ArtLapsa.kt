@@ -57,8 +57,8 @@ class ArtLapsa : Keyoapp("Art Lapsa", "https://artlapsa.com", "en") {
 
     override fun pageListParse(document: Document): List<Page> {
         val data = document.selectFirst("script[type=\"application/ld+json\"]")!!.data().parseAs<ChapterLD>()
-        val seriesID = data.url.substring(data.url.lastIndexOf('/') + 1)
-        val chapterID = data.isPartOf.url.substring(data.isPartOf.url.lastIndexOf('/') + 1)
+        val chapterID = data.url.substringAfterLast('/')
+        val seriesID = data.isPartOf.url.substringAfterLast('/')
 
         return (1..data.numberOfPages).mapIndexed { i, page ->
             Page(
