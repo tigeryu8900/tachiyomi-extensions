@@ -531,7 +531,7 @@ abstract class MangaBox(
                     size != null &&
                     prevSize != null &&
                     size.first == prevSize.first &&
-                    !isPageAspectRatio(size.first, size.second) &&
+                    size.second != prevSize.second &&
                     isPageAspectRatio(prevSize.first, prevSize.second + size.second)
                 ) {
                     pageList.last().imageUrl = httpUrl.newBuilder()
