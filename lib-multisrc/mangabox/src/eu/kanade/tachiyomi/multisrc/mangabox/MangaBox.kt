@@ -119,10 +119,7 @@ abstract class MangaBox(
         val url = request.url
 
         if (url.toString().startsWith("https://127.0.0.1/merge?")) {
-            val first = url.queryParameter("1")!!
-            val second = url.queryParameter("2")!!
             val w = url.queryParameter("w")!!.toInt()
-            val m = url.queryParameter("m")!!.toInt()
             val h = url.queryParameter("h")!!.toInt()
 
             val result = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
@@ -130,23 +127,22 @@ abstract class MangaBox(
             try {
                 val canvas = Canvas(result)
 
-                val firstBitmap = BitmapFactory.decodeStream(
-                    chain
-                        .proceed(request.newBuilder().url(first).build())
-                        .body
-                        .byteStream(),
-                )
-                canvas.drawBitmap(firstBitmap, 0f, 0f, null)
-                firstBitmap.recycle()
+                val length = url.queryParameter("length")!!.toInt()
 
-                val secondBitmap = BitmapFactory.decodeStream(
-                    chain
-                        .proceed(request.newBuilder().url(second).build())
-                        .body
-                        .byteStream(),
-                )
-                canvas.drawBitmap(secondBitmap, 0f, m.toFloat(), null)
-                secondBitmap.recycle()
+                var yOffset = 0
+
+                for (i in 0..<length) {
+                    val url = url.queryParameter(i.toString())!!
+                    val bitmap = BitmapFactory.decodeStream(
+                        chain
+                            .proceed(request.newBuilder().url(url).build())
+                            .body
+                            .byteStream(),
+                    )
+                    canvas.drawBitmap(bitmap, 0f, yOffset.toFloat(), null)
+                    yOffset += bitmap.height
+                    bitmap.recycle()
+                }
 
                 return Response.Builder().body(
                     Buffer()
@@ -455,11 +451,6 @@ abstract class MangaBox(
         return arrayValues
     }
 
-    private fun isPageAspectRatio(w: Int, h: Int): Boolean {
-        val ratio = w.toFloat() / h.toFloat()
-        return (ratio - 0.703125f).absoluteValue < 0.02 || (ratio - 1.40625f).absoluteValue < 0.04
-    }
-
     override fun pageListParse(document: Document): List<Page> {
         val content = document.select("script:containsData(cdns =)").joinToString("\n") { it.data() }
         val cdns =
@@ -521,40 +512,37 @@ abstract class MangaBox(
 
             latch.await()
 
-            var prevSize: Pair<Int, Int>? = null
-            val pageList = mutableListOf<Page>()
-
-            val httpUrl = "https://127.0.0.1/merge".toHttpUrl()
+            val imageList = mutableListOf<MergeImage>()
 
             for ((url, size) in imageUrls.zip(sizes.asSequence())) {
+                val prev = imageList.lastOrNull()
+                val prevSize = prev?.size
                 if (
+                    // size is known
                     size != null &&
+
+                    // previous size is known
                     prevSize != null &&
+
+                    // widths are equal
                     size.first == prevSize.first &&
-                    size.second != prevSize.second &&
-                    isPageAspectRatio(prevSize.first, prevSize.second + size.second)
+
+                    // previous image is not a double page spread
+                    (prevSize.first.toFloat() / prevSize.second.toFloat() - 1.40625f).absoluteValue > 0.01f &&
+
+                    // merged image is not too long
+                    prevSize.first.toFloat() / (prevSize.second + size.second).toFloat() > 0.703125f - 0.005f
                 ) {
-                    pageList.last().imageUrl = httpUrl.newBuilder()
-                        .setQueryParameter("1", pageList.last().imageUrl)
-                        .setQueryParameter("2", url)
-                        .setQueryParameter("w", prevSize.first.toString())
-                        .setQueryParameter("m", prevSize.second.toString())
-                        .setQueryParameter("h", (prevSize.second + size.second).toString())
-                        .build().toString()
-                    prevSize = null
+                    prev.urls.add(url)
+                    prev.size = Pair(prevSize.first, prevSize.second + size.second)
                 } else {
-                    pageList.add(
-                        Page(
-                            pageList.size,
-                            document.location(),
-                            url,
-                        ),
-                    )
-                    prevSize = size
+                    imageList.add(MergeImage(mutableListOf(url), size))
                 }
             }
 
-            pageList
+            imageList.mapIndexed { i, image ->
+                Page(i, document.location(), image.toString())
+            }
         } else {
             imageUrls.mapIndexed { i, url ->
                 Page(
@@ -699,5 +687,36 @@ abstract class MangaBox(
         private const val PREF_MERGE_IMAGES = "pref_merge_images"
         private const val CHAPTER_LIST_TAKE = 1000
         private const val URL_PREFIX = "https://"
+    }
+}
+
+private class MergeImage(
+    val urls: MutableList<String>,
+    var size: Pair<Int, Int>?,
+) {
+    override fun toString(): String {
+        if (urls.size == 1) {
+            return urls[0]
+        }
+
+        val builder = HTTP_URL.newBuilder()
+
+        size?.let {
+            builder
+                .addQueryParameter("w", it.first.toString())
+                .addQueryParameter("h", it.second.toString())
+        }
+
+        builder.addQueryParameter("length", urls.size.toString())
+
+        urls.forEachIndexed { i, url ->
+            builder.addQueryParameter(i.toString(), url)
+        }
+
+        return builder.build().toString()
+    }
+
+    companion object {
+        private val HTTP_URL = "https://127.0.0.1/merge".toHttpUrl()
     }
 }
