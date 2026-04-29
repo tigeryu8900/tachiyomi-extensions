@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.util.Base64
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
@@ -119,35 +118,40 @@ abstract class MangaBox(
         val url = request.url
 
         if (url.toString().startsWith("https://127.0.0.1/merge?")) {
-            val first = url.queryParameter("first")!!
-            val second = url.queryParameter("second")!!
+            val first = url.queryParameter("1")!!
+            val second = url.queryParameter("2")!!
             val w = url.queryParameter("w")!!.toInt()
             val m = url.queryParameter("m")!!.toInt()
             val h = url.queryParameter("h")!!.toInt()
 
             val result = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(result)
 
-            val firstBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(first).build()).body.byteStream())
-            canvas.drawBitmap(firstBitmap, 0f, 0f, null)
-            firstBitmap.recycle()
+            try {
+                val canvas = Canvas(result)
 
-            val secondBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(second).build()).body.byteStream())
-            canvas.drawBitmap(firstBitmap, 0f, m.toFloat(), null)
-            secondBitmap.recycle()
+                val firstBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(first).build()).body.byteStream())
+                canvas.drawBitmap(firstBitmap, 0f, 0f, null)
+                firstBitmap.recycle()
 
-            return Response.Builder().body(
-                ByteArrayOutputStream()
-                    .also {
-                        result.compress(Bitmap.CompressFormat.WEBP, 100, it)
-                    }
-                    .toByteArray().toResponseBody("image/webp".toMediaType()),
-            )
-                .request(request)
-                .protocol(Protocol.HTTP_1_0)
-                .code(200)
-                .message("")
-                .build()
+                val secondBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(second).build()).body.byteStream())
+                canvas.drawBitmap(secondBitmap, 0f, m.toFloat(), null)
+                secondBitmap.recycle()
+
+                return Response.Builder().body(
+                    ByteArrayOutputStream()
+                        .also {
+                            result.compress(Bitmap.CompressFormat.WEBP, 100, it)
+                        }
+                        .toByteArray().toResponseBody("image/webp".toMediaType()),
+                )
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_0)
+                    .code(200)
+                    .message("")
+                    .build()
+            } finally {
+                result.recycle()
+            }
         } else {
             return chain.proceed(request)
         }
@@ -440,18 +444,6 @@ abstract class MangaBox(
         return arrayValues
     }
 
-    private fun getByteArray(imageUrl: String): ByteArray = client.newCall(
-        GET(imageUrl, headers).newBuilder()
-            .tag(MangaBoxFallBackTag::class.java, MangaBoxFallBackTag()).build(),
-    ).execute().body.bytes()
-
-    private fun bitmapToObjectURL(bmp: Bitmap): String {
-        val stream = ByteArrayOutputStream()
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        val base64 = Base64.encodeToString(stream.toByteArray(), Base64.DEFAULT)
-        return "https://127.0.0.1/?image/png;base64,$base64"
-    }
-
     override fun pageListParse(document: Document): List<Page> {
         val content = document.select("script:containsData(cdns =)").joinToString("\n") { it.data() }
         val cdns =
@@ -521,11 +513,11 @@ abstract class MangaBox(
             for ((url, size) in imageUrls.zip(sizes.asSequence())) {
                 if (size != null && prevSize != null && size.first == prevSize.first && size.first > 4 * size.second) {
                     pageList.last().imageUrl = httpUrl.newBuilder()
-                        .setQueryParameter("first", pageList.last().imageUrl)
-                        .setQueryParameter("second", url)
+                        .setQueryParameter("1", pageList.last().imageUrl)
+                        .setQueryParameter("2", url)
                         .setQueryParameter("w", prevSize.first.toString())
                         .setQueryParameter("m", prevSize.second.toString())
-                        .setQueryParameter("h", prevSize.second.toString() + size.second.toString())
+                        .setQueryParameter("h", (prevSize.second + size.second).toString())
                         .build().toString()
                     prevSize = null
                 } else {
