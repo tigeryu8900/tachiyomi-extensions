@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import androidx.preference.CheckBoxPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
+import eu.kanade.tachiyomi.multisrc.mangabox.imagesize.WebpSizeGetter
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
@@ -16,7 +17,6 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
-import keiyoushi.lib.imagesize.WebpSizeGetter
 import keiyoushi.utils.getPreferencesLazy
 import keiyoushi.utils.parseAs
 import keiyoushi.utils.tryParse
@@ -31,11 +31,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.ResponseBody.Companion.asResponseBody
+import okio.Buffer
 import okio.IOException
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -66,7 +66,7 @@ abstract class MangaBox(
 
     private fun SharedPreferences.getMirrorPref(): String = getString(PREF_USE_MIRROR, mirrorEntries[0])!!
 
-    private fun SharedPreferences.getMergeImagesPref(): Boolean = getBoolean(PREF_MERGE_IMAGES, true)
+    private fun SharedPreferences.getMergeImagesPref(): Boolean = getBoolean(PREF_MERGE_IMAGES, false)
 
     private val preferences: SharedPreferences by getPreferencesLazy {
         // if current mirror is not in mirrorEntries, set default
@@ -129,20 +129,22 @@ abstract class MangaBox(
             try {
                 val canvas = Canvas(result)
 
-                val firstBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(first).build()).body.byteStream())
+                val firstReq = chain.proceed(request.newBuilder().url(first).build())
+                val firstBitmap = BitmapFactory.decodeStream(firstReq.body.byteStream())
                 canvas.drawBitmap(firstBitmap, 0f, 0f, null)
                 firstBitmap.recycle()
 
-                val secondBitmap = BitmapFactory.decodeStream(chain.proceed(request.newBuilder().url(second).build()).body.byteStream())
+                val secondReq = chain.proceed(request.newBuilder().url(second).build())
+                val secondBitmap = BitmapFactory.decodeStream(secondReq.body.byteStream())
                 canvas.drawBitmap(secondBitmap, 0f, m.toFloat(), null)
                 secondBitmap.recycle()
 
                 return Response.Builder().body(
-                    ByteArrayOutputStream()
+                    Buffer()
                         .also {
-                            result.compress(Bitmap.CompressFormat.WEBP, 100, it)
+                            result.compress(Bitmap.CompressFormat.WEBP, 100, it.outputStream())
                         }
-                        .toByteArray().toResponseBody("image/webp".toMediaType()),
+                        .asResponseBody("image/webp".toMediaType()),
                 )
                     .request(request)
                     .protocol(Protocol.HTTP_1_0)
@@ -368,7 +370,7 @@ abstract class MangaBox(
 
             while (true) {
                 val nextPageResponse =
-                    client.newCall(GET("$baseChapterListUrl?limit=$CHAPTER_LIST_TAKE&offset=${CHAPTER_LIST_TAKE * offsetMultiple}"))
+                    client.newCall(GET("$baseChapterListUrl?limit=$CHAPTER_LIST_TAKE&offset=${CHAPTER_LIST_TAKE * offsetMultiple}", headers))
                         .execute().parseAs<ApiResponse>()
 
                 rawChaptersList.addAll(nextPageResponse.data.chapters)
@@ -480,18 +482,10 @@ abstract class MangaBox(
             )
         }
 
-        return if (mergeImages == false) {
-            imageUrls.mapIndexed { i, url ->
-                Page(
-                    i,
-                    document.location(),
-                    url,
-                )
-            }.toList()
-        } else {
+        return if (mergeImages == true) {
             val latch = CountDownLatch(numImages)
             val sizes = MutableList<Pair<Int, Int>?>(numImages) { null }
-            val headers = headersBuilder().set("Range", "bytes=0-1023").build()
+            val headers = headersBuilder().set("Range", "bytes=0-29").build()
 
             imageUrls.forEachIndexed { i, url ->
                 client.newCall(
@@ -541,6 +535,14 @@ abstract class MangaBox(
             }
 
             pageList
+        } else {
+            imageUrls.mapIndexed { i, url ->
+                Page(
+                    i,
+                    document.location(),
+                    url,
+                )
+            }.toList()
         }
     }
 
@@ -662,7 +664,7 @@ abstract class MangaBox(
             key = PREF_MERGE_IMAGES
             title = "Merge Split Images"
             summary = "Images ares sometimes split vertically. This setting enables detecting and merging split images."
-            setDefaultValue(true)
+            setDefaultValue(false)
 
             setOnPreferenceChangeListener { _, newValue ->
                 // Update values
