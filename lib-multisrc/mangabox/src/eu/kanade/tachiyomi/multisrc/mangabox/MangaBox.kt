@@ -66,7 +66,7 @@ abstract class MangaBox(
 
     private fun SharedPreferences.getMirrorPref(): String = getString(PREF_USE_MIRROR, mirrorEntries[0])!!
 
-    private fun SharedPreferences.getMergeImagesPref(): Boolean = getBoolean(PREF_MERGE_IMAGES, false)
+    private fun SharedPreferences.getMergeImagesPref(): Boolean = getBoolean(PREF_MERGE_IMAGES, true)
 
     private val preferences: SharedPreferences by getPreferencesLazy {
         // if current mirror is not in mirrorEntries, set default
@@ -480,7 +480,15 @@ abstract class MangaBox(
             )
         }
 
-        return if (mergeImages == true) {
+        return if (mergeImages == false) {
+            imageUrls.mapIndexed { i, url ->
+                Page(
+                    i,
+                    document.location(),
+                    url,
+                )
+            }.toList()
+        } else {
             val latch = CountDownLatch(numImages)
             val sizes = MutableList<Pair<Int, Int>?>(numImages) { null }
             val headers = headersBuilder().set("Range", "bytes=0-1023").build()
@@ -533,14 +541,6 @@ abstract class MangaBox(
             }
 
             pageList
-        } else {
-            imageUrls.mapIndexed { i, url ->
-                Page(
-                    i,
-                    document.location(),
-                    url,
-                )
-            }.toList()
         }
     }
 
@@ -662,7 +662,7 @@ abstract class MangaBox(
             key = PREF_MERGE_IMAGES
             title = "Merge Split Images"
             summary = "Images ares sometimes split vertically. This setting enables detecting and merging split images."
-            setDefaultValue(false)
+            setDefaultValue(true)
 
             setOnPreferenceChangeListener { _, newValue ->
                 // Update values
