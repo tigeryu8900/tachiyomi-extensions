@@ -117,9 +117,11 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v6
         with:
+          token: ${{ secrets.PAT }}
           ref: main
           path: main
-          persist-credentials: false
+          persist-credentials: true
+          submodules: true
 
       - name: Create repo artifacts
         run: |
@@ -129,15 +131,6 @@ jobs:
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
           python ./.github/scripts/create-repo.py
-
-      - name: Checkout repo branch
-        uses: actions/checkout@v6
-        with:
-          repository: tigeryu8900/tachiyomi-extensions
-          token: ${{ secrets.PAT }}
-          ref: repo
-          path: repo
-          persist-credentials: true
 
       - name: Merge and deploy repo
         env:
