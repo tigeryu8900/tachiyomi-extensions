@@ -5,7 +5,7 @@ import java.io.InputStream
 abstract class ImageSizeGetter(
     val stream: InputStream,
 ) {
-    fun get(): Pair<Int, Int>? = try {
+    fun get(): ImageSize? = try {
         if (validate()) {
             calculate()
         } else {
@@ -20,7 +20,7 @@ abstract class ImageSizeGetter(
 
     protected abstract fun validate(): Boolean
 
-    protected abstract fun calculate(): Pair<Int, Int>
+    protected abstract fun calculate(): ImageSize
 
     protected var offset = 0
 
@@ -42,10 +42,8 @@ abstract class ImageSizeGetter(
         }
     }
 
-    protected fun read(off: Int, len: Int): ByteArray {
-        val b = ByteArray(len)
-        read(b, off)
-        return b
+    protected fun read(off: Int, len: Int): ByteArray = ByteArray(len).also {
+        read(it, off)
     }
 
     protected fun compare(cmp: ByteArray, off: Int): Boolean {
@@ -62,63 +60,51 @@ abstract class ImageSizeGetter(
 
     protected fun readInt8(off: Int): Byte = read(off, 1)[0]
 
-    protected fun readUint16LE(off: Int): UInt {
-        val b = read(off, 2)
-        return b[0].toUByte().toUInt() or (b[1].toUByte().toUInt() shl 8)
+    protected fun readUint16LE(off: Int): UInt = read(off, 2).let {
+        it[0].toUByte().toUInt() or (it[1].toUByte().toUInt() shl 8)
     }
 
-    protected fun readUint16BE(off: Int): UInt {
-        val b = read(off, 2)
-        return b[1].toUByte().toUInt() or (b[0].toUByte().toUInt() shl 8)
+    protected fun readUint16BE(off: Int): UInt = read(off, 2).let {
+        it[1].toUByte().toUInt() or (it[0].toUByte().toUInt() shl 8)
     }
 
-    protected fun readInt16LE(off: Int): Int {
-        val b = read(off, 2)
-        return b[0].toUByte().toInt() or (b[1].toInt() shl 8)
+    protected fun readInt16LE(off: Int): Int = read(off, 2).let {
+        it[0].toUByte().toInt() or (it[1].toInt() shl 8)
     }
 
-    protected fun readInt16BE(off: Int): Int {
-        val b = read(off, 2)
-        return b[1].toUByte().toInt() or (b[0].toInt() shl 8)
+    protected fun readInt16BE(off: Int): Int = read(off, 2).let {
+        it[1].toUByte().toInt() or (it[0].toInt() shl 8)
     }
 
-    protected fun readUint24LE(off: Int): UInt {
-        val b = read(off, 3)
-        return b[0].toUByte().toUInt() or (b[1].toUByte().toUInt() shl 8) or (b[2].toUByte().toUInt() shl 16)
+    protected fun readUint24LE(off: Int): UInt = read(off, 3).let {
+        it[0].toUByte().toUInt() or (it[1].toUByte().toUInt() shl 8) or (it[2].toUByte().toUInt() shl 16)
     }
 
-    protected fun readUint24BE(off: Int): UInt {
-        val b = read(off, 3)
-        return b[2].toUByte().toUInt() or (b[1].toUByte().toUInt() shl 8) or (b[0].toUByte().toUInt() shl 16)
+    protected fun readUint24BE(off: Int): UInt = read(off, 3).let {
+        it[2].toUByte().toUInt() or (it[1].toUByte().toUInt() shl 8) or (it[0].toUByte().toUInt() shl 16)
     }
 
-    protected fun readInt24LE(off: Int): Int {
-        val b = read(off, 3)
-        return b[0].toUByte().toInt() or (b[1].toUByte().toInt() shl 8) or (b[2].toInt() shl 16)
+    protected fun readInt24LE(off: Int): Int = read(off, 3).let {
+        it[0].toUByte().toInt() or (it[1].toUByte().toInt() shl 8) or (it[2].toInt() shl 16)
     }
 
-    protected fun readInt24BE(off: Int): Int {
-        val b = read(off, 3)
-        return b[2].toUByte().toInt() or (b[1].toUByte().toInt() shl 8) or (b[0].toInt() shl 16)
+    protected fun readInt24BE(off: Int): Int = read(off, 3).let {
+        it[2].toUByte().toInt() or (it[1].toUByte().toInt() shl 8) or (it[0].toInt() shl 16)
     }
 
-    protected fun readUint32LE(off: Int): UInt {
-        val b = read(off, 4)
-        return b[0].toUByte().toUInt() or (b[1].toUByte().toUInt() shl 8) or (b[2].toUByte().toUInt() shl 16) or (b[3].toUByte().toUInt() shl 24)
+    protected fun readUint32LE(off: Int): UInt = read(off, 4).let {
+        it[0].toUByte().toUInt() or (it[1].toUByte().toUInt() shl 8) or (it[2].toUByte().toUInt() shl 16) or (it[3].toUByte().toUInt() shl 24)
     }
 
-    protected fun readUint32BE(off: Int): UInt {
-        val b = read(off, 4)
-        return b[3].toUByte().toUInt() or (b[2].toUByte().toUInt() shl 8) or (b[1].toUByte().toUInt() shl 16) or (b[0].toUByte().toUInt() shl 24)
+    protected fun readUint32BE(off: Int): UInt = read(off, 4).let {
+        it[3].toUByte().toUInt() or (it[2].toUByte().toUInt() shl 8) or (it[1].toUByte().toUInt() shl 16) or (it[0].toUByte().toUInt() shl 24)
     }
 
-    protected fun readInt32LE(off: Int): Int {
-        val b = read(off, 4)
-        return b[0].toUByte().toInt() or (b[1].toUByte().toInt() shl 8) or (b[2].toUByte().toInt() shl 16) or (b[3].toInt() shl 24)
+    protected fun readInt32LE(off: Int): Int = read(off, 4).let {
+        it[0].toUByte().toInt() or (it[1].toUByte().toInt() shl 8) or (it[2].toUByte().toInt() shl 16) or (it[3].toInt() shl 24)
     }
 
-    protected fun readInt32BE(off: Int): Int {
-        val b = read(off, 4)
-        return b[3].toUByte().toInt() or (b[2].toUByte().toInt() shl 8) or (b[1].toUByte().toInt() shl 16) or (b[0].toInt() shl 24)
+    protected fun readInt32BE(off: Int): Int = read(off, 4).let {
+        it[3].toUByte().toInt() or (it[2].toUByte().toInt() shl 8) or (it[1].toUByte().toInt() shl 16) or (it[0].toInt() shl 24)
     }
 }
