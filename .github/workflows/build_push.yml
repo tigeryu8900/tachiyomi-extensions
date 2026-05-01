@@ -134,6 +134,8 @@ jobs:
       - name: Checkout repo branch
         run: |
           cd main
+          pwd
+          ls -a
           git worktree add --track -b repo ../repo origin/repo
 
       - name: Merge and deploy repo
