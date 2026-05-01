@@ -135,7 +135,7 @@ jobs:
         run: |
           cd main
           pwd
-          ls -a
+          git status
           git worktree add --track -b repo ../repo origin/repo
 
       - name: Merge and deploy repo
