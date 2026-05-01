@@ -133,7 +133,7 @@ jobs:
       - name: Checkout repo branch
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.BOT_PAT }}
+          token: ${{ secrets.PAT }}
           ref: repo
           path: repo
           persist-credentials: true
