@@ -6,4 +6,5 @@ class ImageSize(
 ) {
     operator fun component1(): Int = w
     operator fun component2(): Int = h
+    override fun toString(): String = "$w:$h"
 }

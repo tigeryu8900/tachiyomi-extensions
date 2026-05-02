@@ -42,7 +42,6 @@ import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CountDownLatch
 import java.util.regex.Pattern
-import kotlin.math.absoluteValue
 
 abstract class MangaBox(
     override val name: String,
@@ -524,7 +523,7 @@ abstract class MangaBox(
                 val prev = imageList.lastOrNull()
                 val prevSize = prev?.size
                 if (
-                    // size is known
+                // size is known
                     size != null &&
 
                     // previous size is known
@@ -533,11 +532,8 @@ abstract class MangaBox(
                     // widths are equal
                     size.w == prevSize.w &&
 
-                    // previous image is not a double page spread
-                    (prevSize.w.toFloat() / prevSize.h.toFloat() - 1.40625f).absoluteValue > 0.01f &&
-
                     // merged image is not too long
-                    prevSize.w.toFloat() / (prevSize.h + size.h).toFloat() > 0.703125f - 0.005f
+                    3 * prevSize.w > 2 * prevSize.h + size.h
                 ) {
                     prev.urls.add(url)
                     prevSize.h += size.h
