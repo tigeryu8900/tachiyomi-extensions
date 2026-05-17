@@ -2,10 +2,10 @@
   {
     "name": "Tachiyomi: Art Lapsa",
     "pkg": "eu.kanade.tachiyomi.extension.en.artlapsa",
-    "apk": "tachiyomi-en.artlapsa-v1.4.21.apk",
+    "apk": "tachiyomi-en.artlapsa-v1.4.23.apk",
     "lang": "en",
-    "code": 21,
-    "version": "1.4.21",
+    "code": 23,
+    "version": "1.4.23",
     "nsfw": 0,
     "sources": [
       {
@@ -74,10 +74,10 @@
   {
     "name": "Tachiyomi: RitharScans",
     "pkg": "eu.kanade.tachiyomi.extension.en.ritharscans",
-    "apk": "tachiyomi-en.ritharscans-v1.4.20.apk",
+    "apk": "tachiyomi-en.ritharscans-v1.4.21.apk",
     "lang": "en",
-    "code": 20,
-    "version": "1.4.20",
+    "code": 21,
+    "version": "1.4.21",
     "nsfw": 0,
     "sources": [
       {
