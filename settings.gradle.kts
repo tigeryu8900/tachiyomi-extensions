@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "Keiyoushi"
+rootProject.name = "tachiyomi-extensions"
 
 /**
  * Add or remove modules to load as needed for local development here.
