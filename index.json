@@ -18,6 +18,24 @@
     ]
   },
   {
+    "name": "Tachiyomi: Asmodeus Scans",
+    "pkg": "eu.kanade.tachiyomi.extension.en.asmotoon",
+    "apk": "tachiyomi-en.asmotoon-v1.4.19.apk",
+    "lang": "en",
+    "code": 19,
+    "version": "1.4.19",
+    "nsfw": 0,
+    "sources": [
+      {
+        "name": "Asmodeus Scans",
+        "lang": "en",
+        "id": "5258838449396844455",
+        "baseUrl": "https://asmotoon.com",
+        "versionId": 1
+      }
+    ]
+  },
+  {
     "name": "Tachiyomi: Mangabat",
     "pkg": "eu.kanade.tachiyomi.extension.en.mangabat",
     "apk": "tachiyomi-en.mangabat-v1.4.18.apk",
