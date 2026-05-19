@@ -16,12 +16,37 @@ import java.util.TimeZone
 import java.util.UUID
 
 class WaybackMachineInterceptor(
-    private val regex: Regex = ".*".toRegex(),
+    private val include: Regex = ".*".toRegex(),
 ) : Interceptor {
-    // LinkedHashMap with a capacity of 250. When exceeding the capacity the oldest entry is removed.
+    // LinkedHashMap with a capacity of URL_CACHE_MAX_ENTRIES. When exceeding the capacity the oldest entry is removed.
     private val urlCache = object : LinkedHashMap<HttpUrl, HttpUrl>() {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<HttpUrl, HttpUrl>?): Boolean = size > 250
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<HttpUrl, HttpUrl>?,
+        ): Boolean = size > URL_CACHE_MAX_ENTRIES
     }
+
+    private fun getDateStr(chain: Interceptor.Chain, archiveUrl: HttpUrl): String? = chain.proceed(
+        chain
+            .request()
+            .newBuilder()
+            .url(archiveUrl)
+            .build(),
+    ).use {
+        it.header("Location")?.substring(WEB_PREFIX.length, WEB_PREFIX.length + 14)
+    }
+
+    /**
+     * Use the "id_" url, which points to the raw, unmodified content
+     */
+    private fun getSnapshotUrl(
+        dateStr: String,
+        url: HttpUrl,
+    ): HttpUrl = "$WEB_PREFIX${dateStr}id_/$url".toHttpUrl()
+
+    private fun getRetryUrl(url: HttpUrl): HttpUrl = url
+        .newBuilder()
+        .setQueryParameter(RANDOM_QUERY_PARAM, UUID.randomUUID().toString())
+        .build()
 
     /**
      * Gets the response from the Wayback Machine without following redirects
@@ -29,41 +54,40 @@ class WaybackMachineInterceptor(
     private fun getImmediateResponse(
         chain: Interceptor.Chain,
         request: Request,
-    ): Response = urlCache[request.url]?.let {
-        // url is cached, use cached url
-        chain.proceed(request.newBuilder().url(it).build())
-    } ?: request.url.let { url ->
-        if (url.host == HOST) {
-            // url is a Wayback Machine URL, do nothing
-            chain.proceed(request)
-        } else {
-            val (dateStr, newUrl) = getDateStr(chain, "$WEB_PREFIX$url")?.let { dateStr ->
-                val date = DATE_FORMAT.parse(dateStr)!!
-                if (System.currentTimeMillis() - date.time > 24 * 60 * 60 * 1000) {
-                    // archive is older than 24 hours, create a new archive
-                    archiveUrl(chain, url) ?: Pair(dateStr, url)
-                } else {
-                    // archive is recent
-                    Pair(dateStr, url)
-                }
+    ): Response = chain.proceed(
+        urlCache[request.url]?.let {
+            // url is cached, use cached url
+            request.newBuilder().url(it).build()
+        } ?: request.url.let { url ->
+            if (url.host == HOST) {
+                // url is a Wayback Machine URL, do nothing
+                request
+            } else {
+                request.newBuilder().url(
+                    getDateStr(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { dateStr ->
+                        if (System.currentTimeMillis() - DATE_FORMAT.parse(dateStr)!!.time > SNAPSHOT_MAX_AGE_MS) {
+                            // snapshot is older than SNAPSHOT_MAX_AGE_MS, attempt to create a new snapshot
+                            snapshot(chain, url) ?: getSnapshotUrl(dateStr, url)
+                        } else {
+                            // snapshot is recent
+                            getSnapshotUrl(dateStr, url)
+                        }
+                    }
+
+                        // snapshot doesn't exist, create a new snapshot
+                        ?: snapshot(chain, url)
+
+                        // archiving failed
+                        ?: throw Exception("Failed to archive page"),
+                ).build()
             }
-
-                // archive doesn't exist, create a new archive
-                ?: archiveUrl(chain, url)
-
-                // archiving failed
-                ?: throw Exception("Failed to archive page")
-
-            // use the "id_" url, which points to the raw, unmodified content
-            val finalUrl = "$WEB_PREFIX${dateStr}id_/$newUrl".toHttpUrl()
-            chain.proceed(request.newBuilder().url(finalUrl).build())
-        }
-    }
+        },
+    )
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
 
-        if (!regex.matches(request.url.toString())) {
+        if (!include.matches(request.url.toString())) {
             // url does not match regex, do nothing
             return chain.proceed(request)
         }
@@ -118,38 +142,28 @@ class WaybackMachineInterceptor(
         return response
     }
 
-    private fun archiveUrl(
+    /**
+     * Creates a snapshot and returns the snapshot URL
+     */
+    private fun snapshot(
         chain: Interceptor.Chain,
         url: HttpUrl,
-    ): Pair<String, HttpUrl>? = getDateStr(chain, "$SAVE_PREFIX$url")?.let { dateStr ->
-        Pair(dateStr, url)
+    ): HttpUrl? = getDateStr(chain, "$SAVE_PREFIX$url".toHttpUrl())?.let { dateStr ->
+        getSnapshotUrl(dateStr, url)
     } ?: getRetryUrl(url).let { retryUrl ->
-        // Retry archive with a new URL
-        getDateStr(chain, "$SAVE_PREFIX$retryUrl")?.let { dateStr ->
-            Pair(dateStr, retryUrl)
+        // Retry snapshot with a new URL
+        getDateStr(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())?.let { dateStr ->
+            getSnapshotUrl(dateStr, retryUrl)
         }
     }
 
     companion object {
-        private fun getDateStr(chain: Interceptor.Chain, archiveUrl: String): String? = chain.proceed(
-            chain
-                .request()
-                .newBuilder()
-                .url(archiveUrl)
-                .build(),
-        ).use {
-            it.header("Location")?.substring(WEB_PREFIX.length, WEB_PREFIX.length + 14)
-        }
-
-        private fun getRetryUrl(url: HttpUrl): HttpUrl = url
-            .newBuilder()
-            .setQueryParameter(RANDOM_QUERY_PARAM, UUID.randomUUID().toString())
-            .build()
-
         private const val HOST = "web.archive.org"
         private const val SAVE_PREFIX = "https://$HOST/save/"
         private const val WEB_PREFIX = "https://$HOST/web/"
         private const val RANDOM_QUERY_PARAM = "__WaybackMachineInterceptor_RANDOM_QUERY_PARAM__"
+        private const val SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000
+        private const val URL_CACHE_MAX_ENTRIES = 250
         private val DATE_FORMAT = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
