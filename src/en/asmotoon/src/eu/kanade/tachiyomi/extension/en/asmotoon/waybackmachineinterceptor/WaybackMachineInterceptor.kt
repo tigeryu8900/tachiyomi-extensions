@@ -23,7 +23,10 @@ class WaybackMachineInterceptor(
         ): Boolean = size > URL_CACHE_MAX_ENTRIES
     }
 
-    private fun getDateStr(chain: Interceptor.Chain, archiveUrl: HttpUrl): String? = chain.proceed(
+    /**
+     * Get a timestamp from a Wayback Machine URL without a timestamp
+     */
+    private fun getTimestamp(chain: Interceptor.Chain, archiveUrl: HttpUrl): String? = chain.proceed(
         chain
             .request()
             .newBuilder()
@@ -33,12 +36,17 @@ class WaybackMachineInterceptor(
         it.header("Location")?.substring(WEB_PREFIX.length, WEB_PREFIX.length + 14)
     }
 
-    // Use the "id_" url, which points to the raw, unmodified content
+    /**
+     * Get the "id_" url, which points to the raw, unmodified content
+     */
     private fun getSnapshotUrl(
-        dateStr: String,
+        timestamp: String,
         url: HttpUrl,
-    ): HttpUrl = "$WEB_PREFIX${dateStr}id_/$url".toHttpUrl()
+    ): HttpUrl = "$WEB_PREFIX${timestamp}id_/$url".toHttpUrl()
 
+    /**
+     * Create a new URL to retry the snapshot
+     */
     private fun getRetryUrl(url: HttpUrl): HttpUrl = url
         .newBuilder()
         .setQueryParameter(RANDOM_QUERY_PARAM, UUID.randomUUID().toString())
@@ -56,13 +64,13 @@ class WaybackMachineInterceptor(
                 // url is a Wayback Machine URL or isn't matched, do nothing
                 url
             } else {
-                getDateStr(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { dateStr ->
-                    if (System.currentTimeMillis() - DATE_FORMAT.parse(dateStr)!!.time > SNAPSHOT_MAX_AGE_MS) {
+                getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { timestamp ->
+                    if (System.currentTimeMillis() - DATE_FORMAT.parse(timestamp)!!.time > SNAPSHOT_MAX_AGE_MS) {
                         // snapshot is older than SNAPSHOT_MAX_AGE_MS, attempt to create a new snapshot
-                        snapshot(chain, url) ?: getSnapshotUrl(dateStr, url)
+                        snapshot(chain, url) ?: getSnapshotUrl(timestamp, url)
                     } else {
                         // snapshot is recent
-                        getSnapshotUrl(dateStr, url)
+                        getSnapshotUrl(timestamp, url)
                     }
                 }
 
@@ -126,12 +134,12 @@ class WaybackMachineInterceptor(
     private fun snapshot(
         chain: Interceptor.Chain,
         url: HttpUrl,
-    ): HttpUrl? = getDateStr(chain, "$SAVE_PREFIX$url".toHttpUrl())?.let { dateStr ->
-        getSnapshotUrl(dateStr, url)
+    ): HttpUrl? = getTimestamp(chain, "$SAVE_PREFIX$url".toHttpUrl())?.let { timestamp ->
+        getSnapshotUrl(timestamp, url)
     } ?: getRetryUrl(url).let { retryUrl ->
         // Retry snapshot with a new URL
-        getDateStr(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())?.let { dateStr ->
-            getSnapshotUrl(dateStr, retryUrl)
+        getTimestamp(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())?.let { timestamp ->
+            getSnapshotUrl(timestamp, retryUrl)
         }
     }
 
