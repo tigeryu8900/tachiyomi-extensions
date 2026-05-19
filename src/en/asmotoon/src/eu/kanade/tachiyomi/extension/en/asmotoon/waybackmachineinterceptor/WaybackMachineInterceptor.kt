@@ -4,8 +4,6 @@ import android.util.Log
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.asResponseBody
 import okio.Buffer
@@ -35,9 +33,7 @@ class WaybackMachineInterceptor(
         it.header("Location")?.substring(WEB_PREFIX.length, WEB_PREFIX.length + 14)
     }
 
-    /**
-     * Use the "id_" url, which points to the raw, unmodified content
-     */
+    // Use the "id_" url, which points to the raw, unmodified content
     private fun getSnapshotUrl(
         dateStr: String,
         url: HttpUrl,
@@ -53,65 +49,47 @@ class WaybackMachineInterceptor(
      */
     private fun getImmediateResponse(
         chain: Interceptor.Chain,
-        request: Request,
+        url: HttpUrl,
     ): Response = chain.proceed(
-        urlCache[request.url]?.let {
-            // url is cached, use cached url
-            request.newBuilder().url(it).build()
-        } ?: request.url.let { url ->
-            if (url.host == HOST) {
-                // url is a Wayback Machine URL, do nothing
-                request
+        chain.request().newBuilder().url(
+            urlCache[url] ?: if (url.host == HOST || !include.matches(url.toString())) {
+                // url is a Wayback Machine URL or isn't matched, do nothing
+                url
             } else {
-                request.newBuilder().url(
-                    getDateStr(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { dateStr ->
-                        if (System.currentTimeMillis() - DATE_FORMAT.parse(dateStr)!!.time > SNAPSHOT_MAX_AGE_MS) {
-                            // snapshot is older than SNAPSHOT_MAX_AGE_MS, attempt to create a new snapshot
-                            snapshot(chain, url) ?: getSnapshotUrl(dateStr, url)
-                        } else {
-                            // snapshot is recent
-                            getSnapshotUrl(dateStr, url)
-                        }
+                getDateStr(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { dateStr ->
+                    if (System.currentTimeMillis() - DATE_FORMAT.parse(dateStr)!!.time > SNAPSHOT_MAX_AGE_MS) {
+                        // snapshot is older than SNAPSHOT_MAX_AGE_MS, attempt to create a new snapshot
+                        snapshot(chain, url) ?: getSnapshotUrl(dateStr, url)
+                    } else {
+                        // snapshot is recent
+                        getSnapshotUrl(dateStr, url)
                     }
+                }
 
-                        // snapshot doesn't exist, create a new snapshot
-                        ?: snapshot(chain, url)
+                    // snapshot doesn't exist, create a new snapshot
+                    ?: snapshot(chain, url)
 
-                        // archiving failed
-                        ?: throw Exception("Failed to archive page"),
-                ).build()
-            }
-        },
+                    // archiving failed
+                    ?: throw Exception("Failed to archive page")
+            },
+        ).build(),
     )
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-
-        if (!include.matches(request.url.toString())) {
-            // url does not match regex, do nothing
-            return chain.proceed(request)
-        }
-
-        var response = getImmediateResponse(chain, request)
+        val url = chain.request().url
+        var response = getImmediateResponse(chain, url)
 
         // resolve all redirects
         while (response.isRedirect) {
-            response = response.use { response ->
-                getImmediateResponse(
-                    chain,
-                    response
-                        .request
-                        .newBuilder()
-                        .url(response.request.header("Location")!!)
-                        .build(),
-                )
-            }
+            val newUrl = response.header("Location")?.toHttpUrl() ?: break
+            response.close()
+            response = getImmediateResponse(chain, newUrl)
         }
 
         // Cache the url
-        urlCache[request.url] = response.request.url
+        urlCache[url] = response.request.url
 
-        if (response.body.contentType()?.type == "text") {
+        if (response.request.url.host == HOST && response.body.contentType()?.type == "text") {
             // Sometimes, the response is truncated. This prevents an EOFException
             response = response.use { response ->
                 response.newBuilder().headers(
@@ -134,7 +112,7 @@ class WaybackMachineInterceptor(
                                 break
                             }
                         }
-                    }.asResponseBody(response.header("Content-Type")?.toMediaType()),
+                    }.asResponseBody(response.body.contentType()),
                 ).build()
             }
         }
