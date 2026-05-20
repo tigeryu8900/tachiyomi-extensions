@@ -32,8 +32,10 @@ class WaybackMachineInterceptor(
             .newBuilder()
             .url(archiveUrl)
             .build(),
-    ).use {
-        it.header("Location")?.substring(WEB_PREFIX.length, WEB_PREFIX.length + 14)
+    ).use { response ->
+        response.header("Location")?.let {
+            TIMESTAMP_REGEX.find(it)?.value
+        }
     }
 
     /**
@@ -52,6 +54,10 @@ class WaybackMachineInterceptor(
         .setQueryParameter(RANDOM_QUERY_PARAM, UUID.randomUUID().toString())
         .build()
 
+    private fun timestampIsExpired(timestamp: String): Boolean = System.currentTimeMillis() - DATE_FORMAT.parse(
+        timestamp,
+    )!!.time > SNAPSHOT_MAX_AGE_MS
+
     /**
      * Gets the response from the Wayback Machine without following redirects
      */
@@ -60,13 +66,24 @@ class WaybackMachineInterceptor(
         url: HttpUrl,
     ): Response = chain.proceed(
         chain.request().newBuilder().url(
-            urlCache[url] ?: if (url.host == HOST || !include.matches(url.toString())) {
+            urlCache[url]?.let { cachedUrl ->
+                if (TIMESTAMP_REGEX.find(cachedUrl.toString())?.value?.let {
+                        timestampIsExpired(it)
+                    } ?: false
+                ) {
+                    // URL expired
+                    urlCache.remove(url)
+                    null
+                } else {
+                    cachedUrl
+                }
+            } ?: if (url.host == HOST || !include.matches(url.toString())) {
                 // url is a Wayback Machine URL or isn't matched, do nothing
                 url
             } else {
                 getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { timestamp ->
-                    if (System.currentTimeMillis() - DATE_FORMAT.parse(timestamp)!!.time > SNAPSHOT_MAX_AGE_MS) {
-                        // snapshot is older than SNAPSHOT_MAX_AGE_MS, attempt to create a new snapshot
+                    if (timestampIsExpired(timestamp)) {
+                        // snapshot is expired, attempt to create a new snapshot
                         snapshot(chain, url) ?: getSnapshotUrl(timestamp, url)
                     } else {
                         // snapshot is recent
@@ -150,6 +167,7 @@ class WaybackMachineInterceptor(
         private const val RANDOM_QUERY_PARAM = "__WaybackMachineInterceptor_RANDOM_QUERY_PARAM__"
         private const val SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000
         private const val URL_CACHE_MAX_ENTRIES = 250
+        private val TIMESTAMP_REGEX = """(?<=://${Regex.escape(HOST)})/web/)\d{14}""".toRegex()
         private val DATE_FORMAT = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
