@@ -18,6 +18,12 @@ class Asmotoon :
         "https://asmotoon.com",
         "en",
     ) {
+    val defaultClient = super
+        .client
+        .newBuilder()
+        .rateLimitHost(baseUrl.toHttpUrl(), 1, 4)
+        .build()
+
     val waybackMachineClient: OkHttpClient = super
         .client
         .newBuilder()
@@ -27,7 +33,7 @@ class Asmotoon :
     override val client: OkHttpClient get() = if (preferences.getUseWaybackMachinePref()) {
         waybackMachineClient
     } else {
-        super.client
+        defaultClient
     }
 
     // filtering novel entries
