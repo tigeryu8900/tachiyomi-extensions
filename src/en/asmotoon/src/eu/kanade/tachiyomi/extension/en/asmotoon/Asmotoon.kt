@@ -1,11 +1,13 @@
 package eu.kanade.tachiyomi.extension.en.asmotoon
 
-import android.content.SharedPreferences
 import androidx.preference.PreferenceScreen
-import androidx.preference.SwitchPreferenceCompat
-import eu.kanade.tachiyomi.extension.en.asmotoon.waybackmachineinterceptor.WaybackMachineInterceptor
 import eu.kanade.tachiyomi.multisrc.keyoapp.Keyoapp
+import eu.kanade.tachiyomi.network.interceptor.rateLimitHost
 import eu.kanade.tachiyomi.source.model.SManga
+import keiyoushi.lib.waybackmachineinterceptor.Helper.getUseWaybackMachinePref
+import keiyoushi.lib.waybackmachineinterceptor.Helper.setupWaybackMachinePreferenceScreen
+import keiyoushi.lib.waybackmachineinterceptor.Helper.useWaybackMachine
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import org.jsoup.nodes.Document
 import java.util.Locale
@@ -16,6 +18,18 @@ class Asmotoon :
         "https://asmotoon.com",
         "en",
     ) {
+    val waybackMachineClient: OkHttpClient = super
+        .client
+        .newBuilder()
+        .useWaybackMachine("""^${Regex.escape(baseUrl)}/.*$""".toRegex())
+        .build()
+
+    override val client: OkHttpClient get() = if (preferences.getUseWaybackMachinePref()) {
+        waybackMachineClient
+    } else {
+        super.client
+    }
+
     // filtering novel entries
     override fun popularMangaSelector() = "div:contains(Trending) + div .group.overflow-hidden.grid:not(:has(.capitalize:contains(Novel)))"
     override fun latestUpdatesSelector() = "div.grid > div.group:not(:has(.capitalize:contains(Novel)))"
@@ -39,36 +53,8 @@ class Asmotoon :
         }.joinToString()
     }
 
-    val waybackMachineClient: OkHttpClient = super
-        .client
-        .newBuilder()
-        .addInterceptor(WaybackMachineInterceptor("""^${Regex.escape(baseUrl)}/.*$""".toRegex()))
-        .followRedirects(false)
-        .build()
-
-    override val client: OkHttpClient get() = if (preferences.getUseWaybackMachinePref()) {
-        waybackMachineClient
-    } else {
-        super.client
-    }
-
-    private fun SharedPreferences.getUseWaybackMachinePref(): Boolean = getBoolean(
-        PREF_USE_WAYBACK_MACHINE,
-        false,
-    )
-
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         super.setupPreferenceScreen(screen)
-        SwitchPreferenceCompat(screen.context).apply {
-            key = PREF_USE_WAYBACK_MACHINE
-            title = "Use WayBack Machine (web.archive.org)"
-            summaryOff = "Requests are not redirected to web.archive.org"
-            summaryOn = "Requests are redirected to web.archive.org"
-            setDefaultValue(false)
-        }.let(screen::addPreference)
-    }
-
-    companion object {
-        private const val PREF_USE_WAYBACK_MACHINE = "pref_use_wayback_machine"
+        setupWaybackMachinePreferenceScreen(screen)
     }
 }

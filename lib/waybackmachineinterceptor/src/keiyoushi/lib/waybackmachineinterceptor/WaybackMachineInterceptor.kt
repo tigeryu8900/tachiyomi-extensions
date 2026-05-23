@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.en.asmotoon.waybackmachineinterceptor
+package keiyoushi.lib.waybackmachineinterceptor
 
 import android.util.Log
 import okhttp3.HttpUrl
@@ -12,10 +12,15 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class WaybackMachineInterceptor(
     private val include: Regex = ".*".toRegex(),
+    snapshotMaxAge: Long = 1L,
+    timeUnit: TimeUnit = TimeUnit.DAYS,
 ) : Interceptor {
+    private val snapshotMaxAgeMS = TimeUnit.MILLISECONDS.convert(snapshotMaxAge, timeUnit)
+
     // LinkedHashMap with a capacity of URL_CACHE_MAX_ENTRIES. When exceeding the capacity the oldest entry is removed.
     private val urlCache = object : LinkedHashMap<HttpUrl, HttpUrl>() {
         override fun removeEldestEntry(
@@ -56,7 +61,7 @@ class WaybackMachineInterceptor(
 
     private fun timestampIsExpired(timestamp: String): Boolean = System.currentTimeMillis() - DATE_FORMAT.parse(
         timestamp,
-    )!!.time > SNAPSHOT_MAX_AGE_MS
+    )!!.time > snapshotMaxAgeMS
 
     /**
      * Gets the response from the Wayback Machine without following redirects
@@ -165,7 +170,6 @@ class WaybackMachineInterceptor(
         private const val SAVE_PREFIX = "https://$HOST/save/"
         private const val WEB_PREFIX = "https://$HOST/web/"
         private const val RANDOM_QUERY_PARAM = "__WaybackMachineInterceptor_RANDOM_QUERY_PARAM__"
-        private const val SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000
         private const val URL_CACHE_MAX_ENTRIES = 250
         private val TIMESTAMP_REGEX = """(?<=://${Regex.escape(HOST)}/web/)\d{14}""".toRegex()
         private val DATE_FORMAT = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT).apply {
