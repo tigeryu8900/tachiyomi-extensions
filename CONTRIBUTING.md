@@ -13,69 +13,69 @@ or fixing it directly by submitting a Pull Request.
 ## Table of Contents
 
 - [Contributing](#contributing)
-    - [Table of Contents](#table-of-contents)
-    - [Prerequisites](#prerequisites)
-        - [Tools](#tools)
-        - [Cloning the repository](#cloning-the-repository)
-    - [Getting help](#getting-help)
-    - [Writing an extension](#writing-an-extension)
-        - [Setting up a new Gradle module](#setting-up-a-new-gradle-module)
-        - [Loading a subset of Gradle modules](#loading-a-subset-of-gradle-modules)
-            - [Extension file structure](#extension-file-structure)
-            - [AndroidManifest.xml (optional)](#androidmanifestxml-optional)
-            - [build.gradle](#buildgradle)
-        - [Core dependencies](#core-dependencies)
-            - [Extension API](#extension-api)
-            - [lib tools](#lib-tools)
-            - [Available libs](#available-libs)
-            - [Adding a lib dependency](#adding-a-lib-dependency)
-            - [Creating a new lib](#creating-a-new-lib)
-            - [keiyoushi.utils (core utilities)](#keiyoushiutils-core-utilities)
-                - [JSON parsing - `parseAs`](#json-parsing---parseas)
-                - [JSON serialization - `toJsonString` / `toJsonRequestBody`](#json-serialization---tojsonstring--tojsonrequestbody)
-                - [JSON models (DTOs) and serialization](#json-models-dtos-and-serialization)
-                - [Protobuf parsing and serialization - `parseAsProto` / `toRequestBodyProto`](#protobuf-parsing-and-serialization---parseasproto--torequestbodyproto)
-                - [Date parsing - `tryParse`](#date-parsing---tryparse)
-                - [Filter helpers - `firstInstance` / `firstInstanceOrNull`](#filter-helpers---firstinstance--firstinstanceornull)
-                - [Next.js data extraction - `extractNextJs` / `extractNextJsRsc`](#nextjs-data-extraction---extractnextjs--extractnextjsrsc)
-                - [Extracting URLs - `setUrlWithoutDomain` + `absUrl`](#extracting-urls---seturlwithoutdomain--absurl)
-            - [Additional dependencies](#additional-dependencies)
-        - [Extension main class](#extension-main-class)
-            - [Main class key variables](#main-class-key-variables)
-        - [HTML and Image Processing](#html-and-image-processing)
-        - [OkHttp and Network](#okhttp-and-network)
-        - [Extension call flow](#extension-call-flow)
-            - [Popular Manga](#popular-manga)
-            - [Latest Manga](#latest-manga)
-            - [Manga Search](#manga-search)
-                - [Filters](#filters)
-            - [Manga Details](#manga-details)
-            - [Chapter](#chapter)
-            - [Chapter Pages](#chapter-pages)
-        - [Misc notes](#misc-notes)
-        - [Advanced Extension features](#advanced-extension-features)
-            - [Extension logic and app features](#extension-logic-and-app-features)
-            - [Configurable Sources and Preferences](#configurable-sources-and-preferences)
-            - [URL intent filter](#url-intent-filter)
-            - [Update strategy](#update-strategy)
-            - [Renaming existing sources](#renaming-existing-sources)
-    - [Multi-source themes](#multi-source-themes)
-        - [Creating a new theme](#creating-a-new-theme)
-            - [Theme directory structure](#theme-directory-structure)
-            - [Theme build.gradle.kts](#theme-buildgradlekts)
-            - [Theme main class](#theme-main-class)
-        - [Using a Theme](#using-a-theme)
-    - [Running](#running)
-    - [Debugging](#debugging)
-        - [Android Debugger](#android-debugger)
-        - [Logs](#logs)
-        - [Inspecting network calls](#inspecting-network-calls)
-        - [Using external network inspecting tools](#using-external-network-inspecting-tools)
-            - [Setup your proxy server](#setup-your-proxy-server)
-            - [OkHttp proxy setup](#okhttp-proxy-setup)
-    - [Building](#building)
-    - [Submitting the changes](#submitting-the-changes)
-        - [Pull Request checklist](#pull-request-checklist)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+    - [Tools](#tools)
+    - [Cloning the repository](#cloning-the-repository)
+  - [Getting help](#getting-help)
+  - [Writing an extension](#writing-an-extension)
+    - [Setting up a new Gradle module](#setting-up-a-new-gradle-module)
+    - [Loading a subset of Gradle modules](#loading-a-subset-of-gradle-modules)
+      - [Extension file structure](#extension-file-structure)
+      - [AndroidManifest.xml (optional)](#androidmanifestxml-optional)
+      - [build.gradle](#buildgradle)
+    - [Core dependencies](#core-dependencies)
+      - [Extension API](#extension-api)
+      - [lib tools](#lib-tools)
+      - [Available libs](#available-libs)
+      - [Adding a lib dependency](#adding-a-lib-dependency)
+      - [Creating a new lib](#creating-a-new-lib)
+      - [keiyoushi.utils (core utilities)](#keiyoushiutils-core-utilities)
+        - [JSON parsing - `parseAs`](#json-parsing---parseas)
+        - [JSON serialization - `toJsonString` / `toJsonRequestBody`](#json-serialization---tojsonstring--tojsonrequestbody)
+        - [JSON models (DTOs) and serialization](#json-models-dtos-and-serialization)
+        - [Protobuf parsing and serialization - `parseAsProto` / `toRequestBodyProto`](#protobuf-parsing-and-serialization---parseasproto--torequestbodyproto)
+        - [Date parsing - `tryParse`](#date-parsing---tryparse)
+        - [Filter helpers - `firstInstance` / `firstInstanceOrNull`](#filter-helpers---firstinstance--firstinstanceornull)
+        - [Next.js data extraction - `extractNextJs` / `extractNextJsRsc`](#nextjs-data-extraction---extractnextjs--extractnextjsrsc)
+        - [Extracting URLs - `setUrlWithoutDomain` + `absUrl`](#extracting-urls---seturlwithoutdomain--absurl)
+      - [Additional dependencies](#additional-dependencies)
+    - [Extension main class](#extension-main-class)
+      - [Main class key variables](#main-class-key-variables)
+    - [HTML and Image Processing](#html-and-image-processing)
+    - [OkHttp and Network](#okhttp-and-network)
+    - [Extension call flow](#extension-call-flow)
+      - [Popular Manga](#popular-manga)
+      - [Latest Manga](#latest-manga)
+      - [Manga Search](#manga-search)
+        - [Filters](#filters)
+      - [Manga Details](#manga-details)
+      - [Chapter](#chapter)
+      - [Chapter Pages](#chapter-pages)
+    - [Misc notes](#misc-notes)
+    - [Advanced Extension features](#advanced-extension-features)
+      - [Extension logic and app features](#extension-logic-and-app-features)
+      - [Configurable Sources and Preferences](#configurable-sources-and-preferences)
+      - [URL intent filter](#url-intent-filter)
+      - [Update strategy](#update-strategy)
+      - [Renaming existing sources](#renaming-existing-sources)
+  - [Multi-source themes](#multi-source-themes)
+    - [Creating a new theme](#creating-a-new-theme)
+      - [Theme directory structure](#theme-directory-structure)
+      - [Theme build.gradle.kts](#theme-buildgradlekts)
+      - [Theme main class](#theme-main-class)
+    - [Using a Theme](#using-a-theme)
+  - [Running](#running)
+  - [Debugging](#debugging)
+    - [Android Debugger](#android-debugger)
+    - [Logs](#logs)
+    - [Inspecting network calls](#inspecting-network-calls)
+    - [Using external network inspecting tools](#using-external-network-inspecting-tools)
+      - [Setup your proxy server](#setup-your-proxy-server)
+      - [OkHttp proxy setup](#okhttp-proxy-setup)
+  - [Building](#building)
+  - [Submitting the changes](#submitting-the-changes)
+    - [Pull Request checklist](#pull-request-checklist)
 
 ## Prerequisites
 
@@ -85,10 +85,10 @@ that existing contributors will not actively teach these to you.
 - Basic [Android development](https://developer.android.com/)
 - [Kotlin](https://kotlinlang.org/)
 - Web scraping
-    - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
-    - [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors)
-    - [OkHttp](https://square.github.io/okhttp/)
-    - [JSoup](https://jsoup.org/)
+  - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+  - [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors)
+  - [OkHttp](https://square.github.io/okhttp/)
+  - [JSoup](https://jsoup.org/)
 
 ### Tools
 
@@ -115,16 +115,16 @@ navigate and build. This will also reduce disk usage and network traffic.
 
 2. Configure sparse checkout.
 
-   There are two modes of pattern matching. The default is cone mode.
-   Cone mode enables significantly faster pattern matching for big monorepos
-   and the sparse index feature to make Git commands more responsive.
-   In this mode, you can only filter by file path, which is less flexible
-   and might require more work when the project structure changes.
+    There are two modes of pattern matching. The default is cone mode.
+    Cone mode enables significantly faster pattern matching for big monorepos
+    and the sparse index feature to make Git commands more responsive.
+    In this mode, you can only filter by file path, which is less flexible
+    and might require more work when the project structure changes.
 
-   You can skip this code block to use legacy mode if you want easier filters.
-   It won't be much slower as the repo doesn't have that many files.
+    You can skip this code block to use legacy mode if you want easier filters.
+    It won't be much slower as the repo doesn't have that many files.
 
-   To enable cone mode together with sparse index, follow these steps:
+    To enable cone mode together with sparse index, follow these steps:
 
     ```bash
     git sparse-checkout set --cone --sparse-index
@@ -134,11 +134,11 @@ navigate and build. This will also reduce disk usage and network traffic.
     git sparse-checkout add src/<lang>/<source>
     ```
 
-   To remove a source, open `.git/info/sparse-checkout` and delete the exact
-   lines you typed when adding it. Don't touch the other auto-generated lines
-   unless you fully understand how cone mode works, or you might break it.
+    To remove a source, open `.git/info/sparse-checkout` and delete the exact
+    lines you typed when adding it. Don't touch the other auto-generated lines
+    unless you fully understand how cone mode works, or you might break it.
 
-   To use the legacy non-cone mode, follow these steps:
+    To use the legacy non-cone mode, follow these steps:
 
     ```bash
     # enable sparse checkout
@@ -149,7 +149,7 @@ navigate and build. This will also reduce disk usage and network traffic.
     code .git/info/sparse-checkout
     ```
 
-   Here's an example:
+    Here's an example:
 
     ```bash
     /*
@@ -163,8 +163,8 @@ navigate and build. This will also reduce disk usage and network traffic.
     <source>
     ```
 
-   Explanation: the rules are like `gitignore`. We first exclude all sources
-   while retaining project folders, then add the needed sources back manually.
+    Explanation: the rules are like `gitignore`. We first exclude all sources
+    while retaining project folders, then add the needed sources back manually.
 
 3. Configure remotes.
 
@@ -210,9 +210,9 @@ and [negative refspecs](https://github.blog/2020-10-19-git-2-29-released/#user-c
 ## Getting help
 
 - Join [the Discord server](https://discord.gg/3FbCpdKbdY) for online help and to ask questions while
-  developing your extension. When doing so, please ask them in the `#programming` channel.
+developing your extension. When doing so, please ask them in the `#programming` channel.
 - There are some features and tricks that are not explored in this document. Refer to existing
-  extension code for examples.
+extension code for examples.
 
 ## Writing an extension
 
@@ -649,12 +649,12 @@ either `SourceFactory` or `HttpSource`.
 
 - **Memory-efficient Image Interceptors:** When implementing interceptors for descrambling, stitching, or decrypting images, avoid loading the entire image into a `ByteArray`, as this can cause `OutOfMemoryError` on low-end devices. Prefer stream-based processing instead:
 
-    - **Read:** Use `response.body.byteStream()` with `BitmapFactory.decodeStream()` to decode images directly from the stream.
-    - **Write:** Write the processed bitmap into an Okio `Buffer` via `output.outputStream()` and convert it using `asResponseBody(mediaType)`.
-    - **Decryption:** Use Okio's `cipherSource` extension for stream-based decryption rather than decrypting a full byte array in memory.
-    - Note: `readByteArray()` should generally be avoided here because it forces full in-memory buffering of the image. Streaming directly keeps memory usage lower and more stable.
-    - Always wrap network responses in `response.use { ... }` to ensure the response body is properly closed and to prevent memory leaks.
-    - If applicable, call `bitmap.recycle()` after you're done with it to free native memory early.
+  - **Read:** Use `response.body.byteStream()` with `BitmapFactory.decodeStream()` to decode images directly from the stream.
+  - **Write:** Write the processed bitmap into an Okio `Buffer` via `output.outputStream()` and convert it using `asResponseBody(mediaType)`.
+  - **Decryption:** Use Okio's `cipherSource` extension for stream-based decryption rather than decrypting a full byte array in memory.
+  - Note: `readByteArray()` should generally be avoided here because it forces full in-memory buffering of the image. Streaming directly keeps memory usage lower and more stable.
+  - Always wrap network responses in `response.use { ... }` to ensure the response body is properly closed and to prevent memory leaks.
+  - If applicable, call `bitmap.recycle()` after you're done with it to free native memory early.
 
 - **Do not manually check for Cloudflare:** Do not manually check for Cloudflare challenges (e.g., checking for "Just a moment..." text) in `parse` methods. The app handles this before calling the parser.
 - **Prefer stable selectors:** Avoid relying on volatile auto-generated CSS class names (e.g., `styles_Card__jN8og`) or complex regex for parsing. Prefer stable structural selectors.
@@ -675,7 +675,7 @@ either `SourceFactory` or `HttpSource`.
   ```
 - **GraphQL Queries:** If you are sending GraphQL requests, use Kotlin's raw multi-dollar string interpolation (`$$"""..."""`) for your queries. This prevents having to escape every JSON variable `$` symbol manually.
 - **Empty checks on `.text()`:** Because Jsoup's `.text()` automatically trims whitespace, you can use `.isNotEmpty()` instead of `.isNotBlank()` when checking for empty strings. The same applies to `.ownText()`. This also means you should not use `.trim()` with these functions.
-- **Use `cloudflareClient`:** When overriding the client for sources protected by Cloudflare, explicitly set `override val client = network.cloudflareClient.newBuilder()...` instead of `network.client`. The `client` property is deprecated for this purpose in the app.
+- **Use `network.client` for Cloudflare:** When overriding the client for sources protected by Cloudflare, simply use `override val client = network.client.newBuilder()...`. The default `client` now handles Cloudflare challenges automatically. Do **not** use `network.cloudflareClient`, as it is deprecated.
 - **Never use `Thread.sleep()`:** Do not use `Thread.sleep()` for rate limiting. Use OkHttp's `rateLimitHost` interceptor instead.
 - **Avoid synchronous calls in `parse` methods:** Do not call `client.newCall(...).execute()` inside parsing methods like `pageListParse` or `chapterListParse`. Make the request part of the standard flow by overriding the corresponding request method (e.g., `pageListRequest`) or `fetchImageUrl`.
 - **Pass `HttpUrl` directly:** The `GET()` and `POST()` helpers accept an `HttpUrl` object. Do not call `.toString()` on a built `HttpUrl` before passing it.
@@ -689,12 +689,12 @@ either `SourceFactory` or `HttpSource`.
 a.k.a. the Browse source entry point in the app (invoked by tapping on the source name).
 
 - The app calls `fetchPopularManga` which should return a `MangasPage` containing the first batch of
-  found `SManga` entries.
-    - This method supports pagination. When user scrolls the manga list and more results must be fetched,
-      the app calls it again with increasing `page` values (starting with `page=1`). This continues while
-      `MangasPage.hasNextPage` is passed as `true` and `MangasPage.mangas` is not empty.
+found `SManga` entries.
+  - This method supports pagination. When user scrolls the manga list and more results must be fetched,
+    the app calls it again with increasing `page` values (starting with `page=1`). This continues while
+    `MangasPage.hasNextPage` is passed as `true` and `MangasPage.mangas` is not empty.
 - To show the list properly, the app needs `url`, `title` and `thumbnail_url`. You **must** set them
-  here. The rest of the fields could be filled later (refer to Manga Details below).
+here. The rest of the fields could be filled later (refer to Manga Details below).
 
 #### Latest Manga
 
@@ -707,8 +707,8 @@ the source name).
 #### Manga Search
 
 - When the user searches inside the app, `fetchSearchManga` will be called and the rest of the flow
-  is similar to what happens with `fetchPopularManga`.
-    - If search functionality is not available, return `Observable.just(MangasPage(emptyList(), false))`
+is similar to what happens with `fetchPopularManga`.
+  - If search functionality is not available, return `Observable.just(MangasPage(emptyList(), false))`
 - `getFilterList` will be called to get all filters and filter types.
 
 ##### Filters
@@ -746,62 +746,62 @@ open class UriPartFilter(displayName: String, private val vals: Array<Pair<Strin
 #### Manga Details
 
 - When user taps on a manga, `getMangaDetails` and `getChapterList` will be called and the results
-  will be cached.
-    - A `SManga` entry is identified by it's `url`.
+will be cached.
+  - A `SManga` entry is identified by it's `url`.
 - `getMangaDetails` is called to update a manga's details from when it was initialized earlier.
-    - `SManga.initialized` tells the app if it should call `getMangaDetails`. If you are overriding
-      `getMangaDetails`, make sure to pass it as `true`.
-    - `SManga.genre` is a string containing list of all genres separated with `", "`.
-    - `SManga.status` is an "enum" value. Refer to [the values in the `SManga` companion object](https://github.com/tachiyomiorg/extensions-lib/blob/8240b5cfecbd281bc737ac159ea7d4e5825ed3df/library/src/main/java/eu/kanade/tachiyomi/source/model/SManga.kt#L26).
-    - During a backup, only `url` and `title` are stored. To restore the rest of the manga data, the
-      app calls `getMangaDetails`, so all fields should be (re)filled in if possible.
-    - If a `SManga` is cached, `getMangaDetails` will be only called when the user does a manual
-      update (Swipe-to-Refresh).
+  - `SManga.initialized` tells the app if it should call `getMangaDetails`. If you are overriding
+  `getMangaDetails`, make sure to pass it as `true`.
+  - `SManga.genre` is a string containing list of all genres separated with `", "`.
+  - `SManga.status` is an "enum" value. Refer to [the values in the `SManga` companion object](https://github.com/tachiyomiorg/extensions-lib/blob/8240b5cfecbd281bc737ac159ea7d4e5825ed3df/library/src/main/java/eu/kanade/tachiyomi/source/model/SManga.kt#L26).
+  - During a backup, only `url` and `title` are stored. To restore the rest of the manga data, the
+  app calls `getMangaDetails`, so all fields should be (re)filled in if possible.
+  - If a `SManga` is cached, `getMangaDetails` will be only called when the user does a manual
+  update (Swipe-to-Refresh).
 - `getChapterList` is called to display the chapter list.
-    - **The list should be sorted descending by the source order**.
+  - **The list should be sorted descending by the source order**.
 - `getMangaUrl` is called when the user taps "Open in WebView".
-    - If the source uses an API to fetch the data, consider overriding this method to return the manga
-      absolute URL in the website instead.
-    - It defaults to the URL provided to the request in `mangaDetailsRequest`.
+  - If the source uses an API to fetch the data, consider overriding this method to return the manga
+  absolute URL in the website instead.
+  - It defaults to the URL provided to the request in `mangaDetailsRequest`.
 
 #### Chapter
 
 - `SChapter.date_upload` is the [UNIX Epoch time](https://en.wikipedia.org/wiki/Unix_time)
-  **expressed in milliseconds**.
-    - If you don't pass `SChapter.date_upload` and leave it zero, the app will use the default date
-      instead, but it's recommended to always fill it if it's available.
-    - To get the time in milliseconds from a date string, you can use a `SimpleDateFormat` like in
-      the example below.
+**expressed in milliseconds**.
+  - If you don't pass `SChapter.date_upload` and leave it zero, the app will use the default date
+  instead, but it's recommended to always fill it if it's available.
+  - To get the time in milliseconds from a date string, you can use a `SimpleDateFormat` like in
+  the example below.
 
-      ```kotlin
-      import keiyoushi.utils.tryParse
-  
-      chapter.date_upload = dateFormat.tryParse(dateStr)
-  
-      private val dateFormat by lazy {
-          SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-      }
-      ```
+    ```kotlin
+    import keiyoushi.utils.tryParse
 
-      Make sure you make the `SimpleDateFormat` a class constant or variable so it doesn't get
-      recreated for every chapter. If you need to parse or format dates in manga description, create
-      another instance since `SimpleDateFormat` is not thread-safe.
-    - If the parsing has any problems, make sure to return `0L` so the app will use the default date
-      instead.
-    - The app will overwrite dates of existing old chapters **UNLESS** `0L` is returned.
-    - If the source only provides the manga's updated date, assign it to the latest chapter only.
+    chapter.date_upload = dateFormat.tryParse(dateStr)
+
+    private val dateFormat by lazy {
+        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+    }
+    ```
+
+    Make sure you make the `SimpleDateFormat` a class constant or variable so it doesn't get
+  recreated for every chapter. If you need to parse or format dates in manga description, create
+  another instance since `SimpleDateFormat` is not thread-safe.
+  - If the parsing has any problems, make sure to return `0L` so the app will use the default date
+  instead.
+  - The app will overwrite dates of existing old chapters **UNLESS** `0L` is returned.
+  - If the source only provides the manga's updated date, assign it to the latest chapter only.
 - `getChapterUrl` is called when the user taps "Open in WebView" in the reader.
-    - If the source uses an API to fetch the data, consider overriding this method to return the
-      chapter absolute URL in the website instead.
-    - It defaults to the URL provided to the request in `pageListRequest`.
+  - If the source uses an API to fetch the data, consider overriding this method to return the
+  chapter absolute URL in the website instead.
+  - It defaults to the URL provided to the request in `pageListRequest`.
 
 #### Chapter Pages
 
 - When user opens a chapter, `getPageList` will be called and it will return a list of `Page`s.
 - While a chapter is open in the reader or is being downloaded, `fetchImageUrl` will be called to get
-  the URL for each page of the manga if `Page.imageUrl` is empty.
+the URL for each page of the manga if `Page.imageUrl` is empty.
 - If the source provides all the `Page.imageUrl`s directly, you can fill them and leave `Page.url`
-  empty, so the app will skip the `fetchImageUrl` step and directly call `fetchImage`.
+empty, so the app will skip the `fetchImageUrl` step and directly call `fetchImage`.
 - The `Page.url` and `Page.imageUrl` attributes **should be set as absolute URLs**.
 - The list of `Page`s should be returned already sorted, the `index` field is ignored.
 - If you need to pass additional data to the image fetcher, it is recommended to pass it as a URL fragment (e.g. `url + "#data"`). OkHttp does not send fragments to the server, so there is no need to strip it out afterwards.
@@ -968,10 +968,10 @@ and prevents unnecessary load on the source servers. To change the update strate
 use the `update_strategy` field. You can find below a description of the current possible values.
 
 - `UpdateStrategy.ALWAYS_UPDATE`: Titles marked as always update will be included in the library
-  update if they aren't excluded by additional restrictions.
+update if they aren't excluded by additional restrictions.
 - `UpdateStrategy.ONLY_FETCH_ONCE`: Titles marked as only fetch once will be automatically skipped
-  during library updates. Useful for cases where the series is previously known to be finished and have
-  only a single chapter, for example.
+during library updates. Useful for cases where the series is previously known to be finished and have
+only a single chapter, for example.
 
 If not set, it defaults to `ALWAYS_UPDATE`.
 
@@ -1231,7 +1231,7 @@ class MySource : HttpSource() {
         return this
     }
 
-    override val client: OkHttpClient = network.cloudflareClient.newBuilder()
+    override val client: OkHttpClient = network.client.newBuilder()
         .ignoreAllSSLErrors()
         .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("10.0.2.2", 8080)))
         .build()
