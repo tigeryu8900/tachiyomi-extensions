@@ -24,7 +24,7 @@ class Asmotoon :
         .rateLimitHost(baseUrl.toHttpUrl(), 3, 5)
         .build()
 
-    val waybackMachineClient: OkHttpClient = super
+    val waybackMachineClient = super
         .client
         .newBuilder()
         .useWaybackMachine("""^${Regex.escape(baseUrl)}/.*$""".toRegex())
