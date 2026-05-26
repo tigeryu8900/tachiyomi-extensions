@@ -1,6 +1,7 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
 import android.util.Log
+import keiyoushi.lib.waybackmachineinterceptor.RateLimit.rateLimit
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
@@ -12,14 +13,14 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import java.util.UUID
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 
 class WaybackMachineInterceptor(
     private val include: Regex = ".*".toRegex(),
-    snapshotMaxAge: Long = 1L,
-    timeUnit: TimeUnit = TimeUnit.DAYS,
+    snapshotMaxAge: Duration = 1.days,
 ) : Interceptor {
-    private val snapshotMaxAgeMS = TimeUnit.MILLISECONDS.convert(snapshotMaxAge, timeUnit)
+    private val snapshotMaxAgeMS = snapshotMaxAge.inWholeMilliseconds
 
     // LinkedHashMap with a capacity of URL_CACHE_MAX_ENTRIES. When exceeding the capacity the oldest entry is removed.
     private val urlCache = object : LinkedHashMap<HttpUrl, HttpUrl>() {
@@ -31,7 +32,10 @@ class WaybackMachineInterceptor(
     /**
      * Get a timestamp from a Wayback Machine URL without a timestamp
      */
-    private fun getTimestamp(chain: Interceptor.Chain, archiveUrl: HttpUrl): String? = chain.proceed(
+    private fun getTimestamp(
+        chain: Interceptor.Chain,
+        archiveUrl: HttpUrl,
+    ): String? = chain.proceed(
         chain
             .request()
             .newBuilder()
@@ -105,8 +109,13 @@ class WaybackMachineInterceptor(
         ).build(),
     )
 
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val url = chain.request().url
+    /**
+     * Resolves all redirects
+     */
+    private fun resolveRedirects(
+        chain: Interceptor.Chain,
+        url: HttpUrl,
+    ): Response {
         var response = getImmediateResponse(chain, url)
 
         // resolve all redirects
@@ -116,10 +125,17 @@ class WaybackMachineInterceptor(
             response = getImmediateResponse(chain, newUrl)
         }
 
+        return response
+    }
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val url = chain.request().url
+        var response = resolveRedirects(chain, url)
+
         // Cache the url
         urlCache[url] = response.request.url
 
-        if (response.request.url.host == HOST && response.body.contentType()?.type == "text") {
+        if (response.request.url.host == HOST) {
             // Sometimes, the response is truncated. This prevents an EOFException
             response = response.use { response ->
                 response.newBuilder().headers(
@@ -150,20 +166,30 @@ class WaybackMachineInterceptor(
         return response
     }
 
+    private inline fun <R> snapshotHelper(
+        chain: Interceptor.Chain,
+        url: HttpUrl,
+        block: (String, HttpUrl) -> R?,
+    ): R? = rateLimit {
+        getTimestamp(chain, "$SAVE_PREFIX$url".toHttpUrl())
+    }?.let { timestamp ->
+        block(timestamp, url)
+    } ?: getRetryUrl(url).let { retryUrl ->
+        // Retry snapshot with a new URL
+        rateLimit {
+            getTimestamp(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())
+        }?.let { timestamp ->
+            block(timestamp, retryUrl)
+        }
+    }
+
     /**
      * Creates a snapshot and returns the snapshot URL
      */
     private fun snapshot(
         chain: Interceptor.Chain,
         url: HttpUrl,
-    ): HttpUrl? = getTimestamp(chain, "$SAVE_PREFIX$url".toHttpUrl())?.let { timestamp ->
-        getSnapshotUrl(timestamp, url)
-    } ?: getRetryUrl(url).let { retryUrl ->
-        // Retry snapshot with a new URL
-        getTimestamp(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())?.let { timestamp ->
-            getSnapshotUrl(timestamp, retryUrl)
-        }
-    }
+    ): HttpUrl? = snapshotHelper(chain, url, ::getSnapshotUrl)
 
     companion object {
         private const val HOST = "web.archive.org"

@@ -4,9 +4,9 @@ import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.multisrc.keyoapp.Keyoapp
 import eu.kanade.tachiyomi.network.interceptor.rateLimitHost
 import eu.kanade.tachiyomi.source.model.SManga
-import keiyoushi.lib.waybackmachineinterceptor.Helper.getUseWaybackMachinePref
-import keiyoushi.lib.waybackmachineinterceptor.Helper.setupWaybackMachinePreferenceScreen
-import keiyoushi.lib.waybackmachineinterceptor.Helper.useWaybackMachine
+import keiyoushi.lib.waybackmachineinterceptor.getUseWaybackMachinePref
+import keiyoushi.lib.waybackmachineinterceptor.setupWaybackMachinePreferenceScreen
+import keiyoushi.lib.waybackmachineinterceptor.useWaybackMachine
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import org.jsoup.nodes.Document
