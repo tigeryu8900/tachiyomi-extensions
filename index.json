@@ -8,15 +8,15 @@
   "extensionList": {
     "extensions": [
       {
-        "name": "Tachiyomi: Art Lapsa",
+        "name": "Art Lapsa",
         "packageName": "eu.kanade.tachiyomi.extension.en.artlapsa",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.artlapsa-v1.4.24.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.artlapsa.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.artlapsa-v1.4.25.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.artlapsa.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 24,
-        "versionName": "1.4.24",
+        "versionCode": "25",
+        "versionName": "1.4.25",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {
@@ -28,15 +28,15 @@
         ]
       },
       {
-        "name": "Tachiyomi: Asmodeus Scans",
+        "name": "Asmodeus Scans",
         "packageName": "eu.kanade.tachiyomi.extension.en.asmotoon",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.asmotoon-v1.4.20.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.asmotoon.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.asmotoon-v1.4.22.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.asmotoon.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 20,
-        "versionName": "1.4.20",
+        "versionCode": "22",
+        "versionName": "1.4.22",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {
@@ -48,15 +48,15 @@
         ]
       },
       {
-        "name": "Tachiyomi: Mangabat",
+        "name": "Mangabat",
         "packageName": "eu.kanade.tachiyomi.extension.en.mangabat",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.mangabat-v1.4.18.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangabat.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.mangabat-v1.4.21.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangabat.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 18,
-        "versionName": "1.4.18",
+        "versionCode": "21",
+        "versionName": "1.4.21",
         "contentWarning": "CONTENT_WARNING_NSFW",
         "sources": [
           {
@@ -68,15 +68,15 @@
         ]
       },
       {
-        "name": "Tachiyomi: Mangakakalot",
+        "name": "Mangakakalot",
         "packageName": "eu.kanade.tachiyomi.extension.en.mangakakalot",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.mangakakalot-v1.4.18.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangakakalot.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.mangakakalot-v1.4.22.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangakakalot.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 18,
-        "versionName": "1.4.18",
+        "versionCode": "22",
+        "versionName": "1.4.22",
         "contentWarning": "CONTENT_WARNING_NSFW",
         "sources": [
           {
@@ -88,15 +88,15 @@
         ]
       },
       {
-        "name": "Tachiyomi: Manganato",
+        "name": "Manganato",
         "packageName": "eu.kanade.tachiyomi.extension.en.manganelo",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.manganelo-v1.4.16.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.manganelo.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.manganelo-v1.4.19.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.manganelo.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 16,
-        "versionName": "1.4.16",
+        "versionCode": "19",
+        "versionName": "1.4.19",
         "contentWarning": "CONTENT_WARNING_NSFW",
         "sources": [
           {
@@ -108,15 +108,15 @@
         ]
       },
       {
-        "name": "Tachiyomi: RitharScans",
+        "name": "RitharScans",
         "packageName": "eu.kanade.tachiyomi.extension.en.ritharscans",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.ritharscans-v1.4.22.apk",
-          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.ritharscans.png"
+          "apkUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/apk/tachiyomi-en.ritharscans-v1.4.23.apk",
+          "iconUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.ritharscans.png"
         },
         "extensionLib": "1.4",
-        "versionCode": 22,
-        "versionName": "1.4.22",
+        "versionCode": "23",
+        "versionName": "1.4.23",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {
