@@ -1,0 +1,132 @@
+{
+  "name": "Tachiyomi Extensions (tigeryu8900)",
+  "badgeLabel": "TACH",
+  "signingKey": "3aabe16c2594c64db760ff25cd5b12d15724c4aa4e817547a8779672e8cc0bed",
+  "contact": {
+    "website": "https://github.com/tigeryu8900/tachiyomi-extensions"
+  },
+  "extensionList": {
+    "extensions": [
+      {
+        "name": "Tachiyomi: Art Lapsa",
+        "packageName": "eu.kanade.tachiyomi.extension.en.artlapsa",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.artlapsa-v1.4.24.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.artlapsa.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 24,
+        "versionName": "1.4.24",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "734404203508686053",
+            "name": "Art Lapsa",
+            "language": "en",
+            "homeUrl": "https://artlapsa.com"
+          }
+        ]
+      },
+      {
+        "name": "Tachiyomi: Asmodeus Scans",
+        "packageName": "eu.kanade.tachiyomi.extension.en.asmotoon",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.asmotoon-v1.4.20.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.asmotoon.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 20,
+        "versionName": "1.4.20",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "5258838449396844455",
+            "name": "Asmodeus Scans",
+            "language": "en",
+            "homeUrl": "https://asmotoon.com"
+          }
+        ]
+      },
+      {
+        "name": "Tachiyomi: Mangabat",
+        "packageName": "eu.kanade.tachiyomi.extension.en.mangabat",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.mangabat-v1.4.18.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangabat.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 18,
+        "versionName": "1.4.18",
+        "contentWarning": "CONTENT_WARNING_NSFW",
+        "sources": [
+          {
+            "id": "4215511432986138970",
+            "name": "Mangabat",
+            "language": "en",
+            "homeUrl": "https://www.mangabats.com"
+          }
+        ]
+      },
+      {
+        "name": "Tachiyomi: Mangakakalot",
+        "packageName": "eu.kanade.tachiyomi.extension.en.mangakakalot",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.mangakakalot-v1.4.18.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.mangakakalot.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 18,
+        "versionName": "1.4.18",
+        "contentWarning": "CONTENT_WARNING_NSFW",
+        "sources": [
+          {
+            "id": "2528986671771677900",
+            "name": "Mangakakalot",
+            "language": "en",
+            "homeUrl": "https://www.mangakakalot.gg"
+          }
+        ]
+      },
+      {
+        "name": "Tachiyomi: Manganato",
+        "packageName": "eu.kanade.tachiyomi.extension.en.manganelo",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.manganelo-v1.4.16.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.manganelo.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 16,
+        "versionName": "1.4.16",
+        "contentWarning": "CONTENT_WARNING_NSFW",
+        "sources": [
+          {
+            "id": "1024627298672457456",
+            "name": "Manganato",
+            "language": "en",
+            "homeUrl": "https://www.natomanga.com"
+          }
+        ]
+      },
+      {
+        "name": "Tachiyomi: RitharScans",
+        "packageName": "eu.kanade.tachiyomi.extension.en.ritharscans",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/apk/tachiyomi-en.ritharscans-v1.4.22.apk",
+          "iconUrl": "https://raw.githubusercontent.com/tigeryu8900/extensions/refs/heads/repo/icon/eu.kanade.tachiyomi.extension.en.ritharscans.png"
+        },
+        "extensionLib": "1.4",
+        "versionCode": 22,
+        "versionName": "1.4.22",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "8220771912098311271",
+            "name": "RitharScans",
+            "language": "en",
+            "homeUrl": "https://ritharscans.com"
+          }
+        ]
+      }
+    ]
+  }
+}
