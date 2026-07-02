@@ -51,11 +51,11 @@ all_extensions.extend(local_proto.extensions)
 all_extensions.sort(key=lambda ext: ext.packageName)
 
 index = index_pb2.Index(
-    name="tachiyomi-extensions",
+    name="Tachiyomi Extensions (tigeryu8900)",
     badgeLabel="TACH",
     signingKey="3aabe16c2594c64db760ff25cd5b12d15724c4aa4e817547a8779672e8cc0bed",
     contact=index_pb2.Contact(
-        website="https://keiyoushi.github.io"
+        website="https://github.com/tigeryu8900/tachiyomi-extensions"
     ),
     extensionList=index_pb2.ExtensionList(extensions=all_extensions),
 )
