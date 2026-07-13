@@ -74,32 +74,7 @@ jobs:
         if: "github.repository == 'tigeryu8900/tachiyomi-extensions'"
         with:
           name: "individual-apks-${{ matrix.chunk.number }}"
-          path: "**/*.apk"
+          path: |
+            **/build/outputs/apk/release/*.apk
+            **/build/outputs/jar/release/*.jar
           retention-days: 1
-
-  inspect:
-    name: Inspect extensions
-    needs: [prepare, build]
-    if: "github.repository == 'tigeryu8900/tachiyomi-extensions'"
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Download APK artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: ~/apk-artifacts
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: 17
-          distribution: temurin
-
-      - name: Run inspector
-        run: |
-          mkdir -p apk
-          find ~/apk-artifacts -name "*.apk" -type f -exec mv {} apk/ \;
-          INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/keiyoushi/extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
-          curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
-          java -jar ./Inspector.jar "apk" "output.json" "tmp"
-          jq . output.json

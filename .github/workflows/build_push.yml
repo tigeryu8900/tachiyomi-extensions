@@ -90,7 +90,10 @@ jobs:
         if: "github.repository == 'tigeryu8900/tachiyomi-extensions'"
         with:
           name: "individual-apks-${{ matrix.chunk.number }}"
-          path: "**/*.apk"
+          path: |
+            **/build/outputs/apk/release/*.apk
+            **/build/outputs/jar/release/*.jar
+            **/build/keiyoushi-source-info.json
           retention-days: 1
 
       - name: Clean up CI files
@@ -99,20 +102,22 @@ jobs:
   publish:
     name: Publish extension repo
     needs: [prepare, build]
-    if: "github.repository == 'tigeryu8900/tachiyomi-extensions'"
+    # Run whenever there's anything to publish, new/changed builds OR only deletions
+    if: >-
+      always() &&
+      github.repository == 'tigeryu8900/tachiyomi-extensions' &&
+      needs.prepare.result == 'success' &&
+      needs.build.result != 'failure' &&
+      needs.build.result != 'cancelled' &&
+      needs.prepare.outputs.delete != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Download APK artifacts
+        if: needs.build.result == 'success'
         uses: actions/download-artifact@v8
         with:
           path: ~/apk-artifacts
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: 17
-          distribution: temurin
 
       - name: Checkout main branch
         uses: actions/checkout@v7
@@ -121,26 +126,29 @@ jobs:
           ref: main
           path: main
 
-      - name: Create repo artifacts
-        run: |
-          cd main
-          python ./.github/scripts/move-built-apks.py
-          INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/keiyoushi/extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
-          curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
-          java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
-          python ./.github/scripts/create-repo.py
-
       - name: Checkout repo branch
         run: |
           cd main
           git fetch --depth=1 origin repo
           git worktree add --track -b repo ../repo origin/repo
 
-      - name: Merge and deploy repo
+      - name: Publish and deploy repo
         env:
           DELETE: ${{ needs.prepare.outputs.delete }}
         run: |
           cd repo
           pip install protobuf
-          python ../main/.github/scripts/merge-repo.py "$DELETE"
-          ../main/.github/scripts/commit-repo.sh
+          python ../main/.github/scripts/publish-repo.py "$DELETE"
+          git config --global user.email "156378334+keiyoushi-bot@users.noreply.github.com"
+          git config --global user.name "keiyoushi-bot"
+          git status
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Update extensions repo"
+            git push
+            curl https://purge.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@repo/index.min.json
+            curl https://purge.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@repo/index.json
+            curl https://purge.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@repo/index.pb
+          else
+            echo "No changes to commit"
+          fi
