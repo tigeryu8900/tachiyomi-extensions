@@ -38,9 +38,9 @@ REPO_APK_DIR.mkdir(parents=True, exist_ok=True)
 REPO_JAR_DIR.mkdir(parents=True, exist_ok=True)
 REPO_ICON_DIR.mkdir(parents=True, exist_ok=True)
 
-APK_BASE_URL = "https://cdn.jsdelivr.net/gh/keiyoushi/extensions@repo/apk"
-JAR_BASE_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/jar"
-ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/keiyoushi/extensions@repo/icon"
+APK_BASE_URL = "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@repo/apk"
+JAR_BASE_URL = "https://raw.githubusercontent.com/tigeryu8900/tachiyomi-extensions/repo/jar"
+ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@repo/icon"
 
 to_delete: list[str] = json.loads(sys.argv[1])
 
@@ -131,11 +131,11 @@ all_extensions.extend(new_extensions)
 all_extensions.sort(key=lambda ext: ext.packageName)
 
 index = index_pb2.Index(
-    name="Keiyoushi",
-    badgeLabel="KEI",
-    signingKey="9add655a78e96c4ec7a53ef89dccb557cb5d767489fac5e785d671a5a75d4da2",
+    name="Tachiyomi Extensions (tigeryu8900)",
+    badgeLabel="TACH",
+    signingKey="3aabe16c2594c64db760ff25cd5b12d15724c4aa4e817547a8779672e8cc0bed",
     contact=index_pb2.Contact(
-        website="https://keiyoushi.github.io", discord="https://discord.gg/3FbCpdKbdY"
+        website="https://github.com/tigeryu8900/tachiyomi-extensions"
     ),
     extensionList=index_pb2.ExtensionList(extensions=all_extensions),
 )
