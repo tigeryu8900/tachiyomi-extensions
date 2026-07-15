@@ -1,7 +1,9 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
+import android.app.Application
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import keiyoushi.lib.waybackmachineinterceptor.RateLimit.rateLimit
 import keiyoushi.utils.parseAs
 import kotlinx.serialization.Serializable
@@ -13,6 +15,8 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.asResponseBody
 import okio.Buffer
 import okio.EOFException
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -30,6 +34,15 @@ class WaybackMachineInterceptor(
     private val snapshotSemaphore = Semaphore(6)
     private val spnSnapshotSemaphore = Semaphore(12)
 
+    private inline fun <T> Semaphore.withPermit(block: () -> T): T = run {
+        acquire()
+        try {
+            block()
+        } finally {
+            release()
+        }
+    }
+
     // LinkedHashMap with a capacity of URL_CACHE_MAX_ENTRIES. When exceeding the capacity the oldest entry is removed.
     private val urlCache = object : LinkedHashMap<HttpUrl, HttpUrl>() {
         override fun removeEldestEntry(
@@ -43,21 +56,15 @@ class WaybackMachineInterceptor(
     private fun getTimestamp(
         chain: Interceptor.Chain,
         archiveUrl: HttpUrl,
-    ): String? = snapshotSemaphore.acquire().let {
-        try {
-            chain.proceed(
-                chain
-                    .request()
-                    .newBuilder()
-                    .url(archiveUrl)
-                    .build(),
-            ).use { response ->
-                response.header("Location")?.let {
-                    TIMESTAMP_REGEX.find(it)?.value
-                }
-            }
-        } finally {
-            snapshotSemaphore.release()
+    ): String? = chain.proceed(
+        chain
+            .request()
+            .newBuilder()
+            .url(archiveUrl)
+            .build(),
+    ).use { response ->
+        response.header("Location")?.let {
+            TIMESTAMP_REGEX.find(it)?.value
         }
     }
 
@@ -131,69 +138,12 @@ class WaybackMachineInterceptor(
                 // url is a Wayback Machine URL or isn't matched, do nothing
                 url
             } else {
-                val credentials = preferences?.getWaybackMachineS3CredentialsPref()
-                if (credentials?.isNotEmpty() == true) {
-                    spnSnapshotSemaphore.acquire()
-
-                    try {
-                        val id = spn(
-                            chain,
-                            credentials,
-                            FormBody
-                                .Builder()
-                                .add("url", url.toString())
-                                .add("if_not_archived_within", (snapshotMaxAgeMS / 1000).toString())
-                                .add("skip_first_archive", "1")
-                                .add("force_get", "1")
-                                .build(),
-                        ).body.string().parseAs<SaveResponse>().job_id
-
-                        var statusResponse = spn(
-                            chain,
-                            credentials,
-                            FormBody
-                                .Builder()
-                                .add("job_id", id)
-                                .build(),
-                        ).body.string().parseAs<StatusResponse>()
-
-                        while (statusResponse.status == "pending") {
-                            statusResponse = spn(
-                                chain,
-                                credentials,
-                                FormBody
-                                    .Builder()
-                                    .add("job_id", id)
-                                    .build(),
-                            ).body.string().parseAs<StatusResponse>()
-
-                            Thread.sleep(5000)
-                        }
-
-                        if (statusResponse.status != "success") {
-                            throw Exception("Failed to archive page: ${statusResponse.status_ext}")
-                        } else {
-                            getSnapshotUrl(statusResponse.timestamp!!, url)
-                        }
-                    } finally {
-                        spnSnapshotSemaphore.release()
+                getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl()).let { timestamp ->
+                    if (timestamp != null && !timestampIsExpired(timestamp)) {
+                        getSnapshotUrl(timestamp, url)
+                    } else {
+                        snapshot(chain, url) ?: getSnapshotUrl(timestamp ?: throw Exception("Failed to archive page"), url)
                     }
-                } else {
-                    getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { timestamp ->
-                        if (timestampIsExpired(timestamp)) {
-                            // snapshot is expired, attempt to create a new snapshot
-                            snapshot(chain, url) ?: getSnapshotUrl(timestamp, url)
-                        } else {
-                            // snapshot is recent
-                            getSnapshotUrl(timestamp, url)
-                        }
-                    }
-
-                        // snapshot doesn't exist, create a new snapshot
-                        ?: snapshot(chain, url)
-
-                        // archiving failed
-                        ?: throw Exception("Failed to archive page")
                 }
             },
         ).build(),
@@ -256,19 +206,81 @@ class WaybackMachineInterceptor(
         return response
     }
 
+    private fun snapshotTimestamp(
+        chain: Interceptor.Chain,
+        url: HttpUrl,
+    ): String? = rateLimit {
+        val credentials = preferences?.getWaybackMachineS3CredentialsPref()
+        if (credentials?.isNotEmpty() == true) {
+            spnSnapshotSemaphore.withPermit {
+                val id = spn(
+                    chain,
+                    credentials,
+                    FormBody
+                        .Builder()
+                        .add("url", url.toString())
+                        .add("if_not_archived_within", (snapshotMaxAgeMS / 1000).toString())
+                        .add("skip_first_archive", "1")
+                        .add("force_get", "1")
+                        .build(),
+                ).body.string().parseAs<SaveResponse>().job_id
+
+                var statusResponse = spn(
+                    chain,
+                    credentials,
+                    FormBody
+                        .Builder()
+                        .add("job_id", id)
+                        .build(),
+                ).body.string().parseAs<StatusResponse>()
+
+                while (statusResponse.status == "pending") {
+                    statusResponse = spn(
+                        chain,
+                        credentials,
+                        FormBody
+                            .Builder()
+                            .add("job_id", id)
+                            .build(),
+                    ).body.string().parseAs<StatusResponse>()
+
+                    Thread.sleep(5000)
+                }
+
+                if (statusResponse.status_ext != null) {
+                    Toast.makeText(
+                        Injekt.get<Application>(),
+                        "Failed to archive page $url: ${statusResponse.status_ext}",
+                        Toast.LENGTH_LONG,
+                    ).show()
+                }
+
+                statusResponse.timestamp
+            }
+        } else {
+            snapshotSemaphore.withPermit {
+                getTimestamp(chain, "$SAVE_PREFIX$url".toHttpUrl()).also {
+                    if (it == null) {
+                        Toast.makeText(
+                            Injekt.get<Application>(),
+                            "Failed to archive page $url",
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
     private inline fun <R> snapshotHelper(
         chain: Interceptor.Chain,
         url: HttpUrl,
         block: (String, HttpUrl) -> R?,
-    ): R? = rateLimit {
-        getTimestamp(chain, "$SAVE_PREFIX$url".toHttpUrl())
-    }?.let { timestamp ->
+    ): R? = snapshotTimestamp(chain, url)?.let { timestamp ->
         block(timestamp, url)
     } ?: getRetryUrl(url).let { retryUrl ->
         // Retry snapshot with a new URL
-        rateLimit {
-            getTimestamp(chain, "$SAVE_PREFIX$retryUrl".toHttpUrl())
-        }?.let { timestamp ->
+        snapshotTimestamp(chain, retryUrl)?.let { timestamp ->
             block(timestamp, retryUrl)
         }
     }
