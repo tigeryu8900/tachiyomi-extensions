@@ -158,7 +158,7 @@ class WaybackMachineInterceptor(
                         Thread.sleep(5000)
                     }
 
-                    if (statusResponse.status !== "success") {
+                    if (statusResponse.status != "success") {
                         throw Exception("Failed to archive page: ${statusResponse.status_ext}")
                     } else {
                         getSnapshotUrl(statusResponse.timestamp!!, url)
