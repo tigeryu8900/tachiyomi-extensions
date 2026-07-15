@@ -1,7 +1,11 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
+import android.content.SharedPreferences
 import android.util.Log
 import keiyoushi.lib.waybackmachineinterceptor.RateLimit.rateLimit
+import keiyoushi.utils.parseAs
+import kotlinx.serialization.Serializable
+import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
@@ -19,6 +23,7 @@ import kotlin.time.Duration.Companion.days
 class WaybackMachineInterceptor(
     private val include: Regex = ".*".toRegex(),
     snapshotMaxAge: Duration = 1.days,
+    private val preferences: SharedPreferences? = null,
 ) : Interceptor {
     private val snapshotMaxAgeMS = snapshotMaxAge.inWholeMilliseconds
 
@@ -67,6 +72,33 @@ class WaybackMachineInterceptor(
         timestamp,
     )!!.time > snapshotMaxAgeMS
 
+    private fun spn(
+        chain: Interceptor.Chain,
+        credentials: String,
+        body: FormBody,
+    ): Response = chain.proceed(
+        chain
+            .request()
+            .newBuilder()
+            .url(SAVE_PREFIX)
+            .header("Accept", "application/json")
+            .header("Authorization", "LOW $credentials")
+            .post(body)
+            .build(),
+    )
+
+    @Serializable
+    private class SaveResponse(
+        val job_id: String,
+    )
+
+    @Serializable
+    private class StatusResponse(
+        val status: String,
+        val status_ext: String?,
+        val timestamp: String?,
+    )
+
     /**
      * Gets the response from the Wayback Machine without following redirects
      */
@@ -90,21 +122,64 @@ class WaybackMachineInterceptor(
                 // url is a Wayback Machine URL or isn't matched, do nothing
                 url
             } else {
-                getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { timestamp ->
-                    if (timestampIsExpired(timestamp)) {
-                        // snapshot is expired, attempt to create a new snapshot
-                        snapshot(chain, url) ?: getSnapshotUrl(timestamp, url)
-                    } else {
-                        // snapshot is recent
-                        getSnapshotUrl(timestamp, url)
+                val credentials = preferences?.getWaybackMachineS3CredentialsPref()
+                if (credentials?.isNotEmpty() == true) {
+                    val id = spn(
+                        chain,
+                        credentials,
+                        FormBody
+                            .Builder()
+                            .add("url", url.toString())
+                            .add("if_not_archived_within", (snapshotMaxAgeMS / 1000).toString())
+                            .add("skip_first_archive", "1")
+                            .add("force_get", "1")
+                            .build(),
+                    ).body.string().parseAs<SaveResponse>().job_id
+
+                    var statusResponse = spn(
+                        chain,
+                        credentials,
+                        FormBody
+                            .Builder()
+                            .add("job_id", id)
+                            .build(),
+                    ).body.string().parseAs<StatusResponse>()
+
+                    while (statusResponse.status == "pending") {
+                        statusResponse = spn(
+                            chain,
+                            credentials,
+                            FormBody
+                                .Builder()
+                                .add("job_id", id)
+                                .build(),
+                        ).body.string().parseAs<StatusResponse>()
+
+                        Thread.sleep(5000)
                     }
+
+                    if (statusResponse.status !== "success") {
+                        throw Exception("Failed to archive page: ${statusResponse.status_ext}")
+                    } else {
+                        getSnapshotUrl(statusResponse.timestamp!!, url)
+                    }
+                } else {
+                    getTimestamp(chain, "$WEB_PREFIX$url".toHttpUrl())?.let { timestamp ->
+                        if (timestampIsExpired(timestamp)) {
+                            // snapshot is expired, attempt to create a new snapshot
+                            snapshot(chain, url) ?: getSnapshotUrl(timestamp, url)
+                        } else {
+                            // snapshot is recent
+                            getSnapshotUrl(timestamp, url)
+                        }
+                    }
+
+                        // snapshot doesn't exist, create a new snapshot
+                        ?: snapshot(chain, url)
+
+                        // archiving failed
+                        ?: throw Exception("Failed to archive page")
                 }
-
-                    // snapshot doesn't exist, create a new snapshot
-                    ?: snapshot(chain, url)
-
-                    // archiving failed
-                    ?: throw Exception("Failed to archive page")
             },
         ).build(),
     )

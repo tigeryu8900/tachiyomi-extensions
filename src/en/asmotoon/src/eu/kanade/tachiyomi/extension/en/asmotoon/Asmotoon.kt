@@ -27,7 +27,7 @@ abstract class Asmotoon : Keyoapp() {
     val waybackMachineClient: OkHttpClient = super
         .client
         .newBuilder()
-        .useWaybackMachine("""^${Regex.escape(baseUrl)}/.*$""".toRegex())
+        .useWaybackMachine("""^${Regex.escape(baseUrl)}/.*$""".toRegex(), preferences = preferences)
         .build()
 
     override val client: OkHttpClient get() = if (preferences.getUseWaybackMachinePref()) {
