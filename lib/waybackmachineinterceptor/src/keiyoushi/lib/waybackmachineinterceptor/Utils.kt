@@ -6,6 +6,9 @@ import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -13,22 +16,40 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toDuration
 import kotlin.time.toDurationUnit
 
+internal const val HOST = "web.archive.org"
+internal const val SAVE_PREFIX = "https://$HOST/save/"
+internal const val WEB_PREFIX = "https://$HOST/web/"
+internal const val RANDOM_QUERY_PARAM = "__WaybackMachineInterceptor_RANDOM_QUERY_PARAM__"
+internal const val URL_CACHE_MAX_ENTRIES = 250
+internal val TIMESTAMP_REGEX = """(?<=://${Regex.escape(HOST)}/web/)\d{14}""".toRegex()
+internal val DATE_FORMAT = SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT).apply {
+    timeZone = TimeZone.getTimeZone("UTC")
+}
+
 fun OkHttpClient.Builder.useWaybackMachine(
     include: Regex = ".*".toRegex(),
     snapshotMaxAge: Duration = 1.days,
     preferences: SharedPreferences? = null,
-): OkHttpClient.Builder = this
-    .readTimeout(60.seconds)
-    .addInterceptor(WaybackMachineInterceptor(include, snapshotMaxAge, preferences))
-    .followRedirects(false)
+): OkHttpClient.Builder = apply {
+    val client = build()
+        .newBuilder()
+        .readTimeout(60.seconds)
+        .followRedirects(false)
+        .build()
+    addInterceptor(ApplicationInterceptor(include, preferences))
+    addNetworkInterceptor(NetworkInterceptor(snapshotMaxAge, preferences, client))
+}
 
 fun OkHttpClient.Builder.useWaybackMachine(
     include: Regex = ".*".toRegex(),
     snapshotMaxAge: Long = 1L,
     timeUnit: TimeUnit = TimeUnit.DAYS,
     preferences: SharedPreferences? = null,
-): OkHttpClient.Builder = this
-    .useWaybackMachine(include, snapshotMaxAge.toDuration(timeUnit.toDurationUnit()), preferences)
+): OkHttpClient.Builder = useWaybackMachine(
+    include,
+    snapshotMaxAge.toDuration(timeUnit.toDurationUnit()),
+    preferences,
+)
 
 fun SharedPreferences.getUseWaybackMachinePref(): Boolean = getBoolean(
     PREF_USE_WAYBACK_MACHINE,

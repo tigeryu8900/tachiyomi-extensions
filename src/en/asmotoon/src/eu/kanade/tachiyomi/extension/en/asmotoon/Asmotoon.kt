@@ -4,12 +4,10 @@ import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.multisrc.keyoapp.Keyoapp
 import eu.kanade.tachiyomi.source.model.SManga
 import keiyoushi.annotation.Source
-import keiyoushi.lib.waybackmachineinterceptor.getUseWaybackMachinePref
 import keiyoushi.lib.waybackmachineinterceptor.setupWaybackMachinePreferenceScreen
 import keiyoushi.lib.waybackmachineinterceptor.useWaybackMachine
 import keiyoushi.network.rateLimit
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
 import org.jsoup.nodes.Document
 import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
@@ -18,23 +16,12 @@ import kotlin.time.Duration.Companion.seconds
 abstract class Asmotoon : Keyoapp() {
     private val baseUrlHost by lazy { baseUrl.toHttpUrl().host }
 
-    val defaultClient = super
-        .client
-        .newBuilder()
-        .rateLimit(3, 5.seconds) { it.host == baseUrlHost }
-        .build()
-
-    val waybackMachineClient: OkHttpClient = super
+    override val client = super
         .client
         .newBuilder()
         .useWaybackMachine("""^${Regex.escape(baseUrl)}/.*$""".toRegex(), preferences = preferences)
+        .rateLimit(3, 5.seconds) { it.host == baseUrlHost }
         .build()
-
-    override val client: OkHttpClient get() = if (preferences.getUseWaybackMachinePref()) {
-        waybackMachineClient
-    } else {
-        defaultClient
-    }
 
     // filtering novel entries
     override fun popularMangaSelector() = "div:contains(Trending) + div .group:not([data-type=novel])"
