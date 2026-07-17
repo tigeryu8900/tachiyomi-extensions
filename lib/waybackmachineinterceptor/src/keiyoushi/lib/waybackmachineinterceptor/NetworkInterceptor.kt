@@ -125,7 +125,7 @@ internal class NetworkInterceptor(
                             url,
                             request.headers,
                         ) ?: getSnapshotUrl(
-                            timestamp ?: throw Exception("Failed to archive page"),
+                            timestamp ?: throw IOException("Failed to archive page $url"),
                             url,
                         )
                     }
