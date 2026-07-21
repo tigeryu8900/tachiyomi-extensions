@@ -1,40 +1,40 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
 import android.os.SystemClock
-import java.util.ArrayDeque
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
 internal object RateLimit {
     const val PERMITS = 15
-    val requestQueue = ArrayDeque<Long>(PERMITS)
-    val rateLimitMillis = 1.minutes.inWholeMilliseconds
+    val rateLimit = 1.minutes
+    val queue = ArrayDeque<Duration>(PERMITS)
+    val lock = ReentrantLock(true)
+    val condition: Condition = lock.newCondition()
 
-    inline fun <R> rateLimit(block: () -> R): R {
-        val timestamp: Long
-
-        synchronized(requestQueue) {
-            while (requestQueue.size >= PERMITS) { // queue is full, remove expired entries
-                val periodStart = SystemClock.elapsedRealtime() - rateLimitMillis
-                var hasRemovedExpired = false
-                while (!requestQueue.isEmpty() && requestQueue.first() <= periodStart) {
-                    requestQueue.removeFirst()
-                    hasRemovedExpired = true
+    inline fun <R> rateLimit(block: () -> R): R = lock.withLock {
+        while (queue.size >= PERMITS) { // queue is full, remove expired entries
+            val periodStart = SystemClock.elapsedRealtime().milliseconds - rateLimit
+            if (!queue.isEmpty() && queue.first() <= periodStart) {
+                queue.removeFirst()
+                while (!queue.isEmpty() && queue.first() <= periodStart) {
+                    queue.removeFirst()
                 }
-                if (hasRemovedExpired) {
-                    break
-                }
-                try { // wait for the first entry to expire, or notified by cached response
-                    (requestQueue as Object).wait(requestQueue.first() - periodStart)
-                } catch (_: InterruptedException) {
-                    continue
-                }
+                break
             }
-
-            // add request to queue
-            timestamp = SystemClock.elapsedRealtime()
-            requestQueue.addLast(timestamp)
+            try {
+                condition.awaitNanos((queue.first() - periodStart).inWholeNanoseconds)
+            } catch (_: InterruptedException) {
+                continue
+            }
         }
 
-        return block()
+        // add request to queue
+        queue.addLast(SystemClock.elapsedRealtime().milliseconds)
+
+        block()
     }
 }

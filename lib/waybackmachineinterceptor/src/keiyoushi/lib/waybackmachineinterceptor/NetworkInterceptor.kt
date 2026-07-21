@@ -3,18 +3,17 @@ package keiyoushi.lib.waybackmachineinterceptor
 import android.app.Application
 import android.content.SharedPreferences
 import android.widget.Toast
+import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.network.NetworkHelper
+import eu.kanade.tachiyomi.network.POST
 import keiyoushi.lib.waybackmachineinterceptor.RateLimit.rateLimit
-import keiyoushi.network.get
-import keiyoushi.network.post
 import keiyoushi.utils.parseAs
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
-import okhttp3.OkHttpClient
 import okhttp3.Response
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -22,15 +21,21 @@ import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Semaphore
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 
-internal class NetworkInterceptor(
-    snapshotMaxAge: Duration,
-    private val preferences: SharedPreferences?,
-    private val client: OkHttpClient,
-) : Interceptor {
-    private val snapshotMaxAgeMS = snapshotMaxAge.inWholeMilliseconds
-    private val snapshotSemaphore = Semaphore(6)
-    private val spnSnapshotSemaphore = Semaphore(12)
+internal object NetworkInterceptor : Interceptor {
+    private val captureSemaphore by lazy { Semaphore(6) }
+    private val spnCaptureSemaphore by lazy { Semaphore(12) }
+    private val client by lazy {
+        Injekt
+            .get<NetworkHelper>()
+            .client
+            .newBuilder()
+            .readTimeout(60.seconds)
+            .followRedirects(false)
+            .build()
+    }
 
     private inline fun <T> Semaphore.withPermit(action: () -> T): T = run {
         acquire()
@@ -44,39 +49,43 @@ internal class NetworkInterceptor(
     /**
      * Get a timestamp from a Wayback Machine URL without a timestamp
      */
-    private fun getTimestamp(archiveUrl: HttpUrl): String? = runBlocking {
-        client.get(archiveUrl, Headers.Builder().build(), ensureSuccess = false)
-    }.use { response ->
-        response.header("Location")?.let {
-            TIMESTAMP_REGEX.find(it)?.value
+    private fun getTimestamp(archiveUrl: HttpUrl): String? = client
+        .newCall(GET(archiveUrl, Headers.Builder().build()))
+        .execute()
+        .use { response ->
+            response.header("Location")?.let {
+                TIMESTAMP_REGEX.find(it)?.value
+            }
         }
-    }
 
     /**
      * Get the "id_" url, which points to the raw, unmodified content
      */
-    private fun getSnapshotUrl(
+    private fun getCaptureUrl(
         timestamp: String,
         url: HttpUrl,
     ): HttpUrl = "$WEB_PREFIX${timestamp}id_/$url".toHttpUrl()
 
     /**
-     * Create a new URL to retry the snapshot
+     * Create a new URL to retry the capture
      */
     private fun getRetryUrl(url: HttpUrl): HttpUrl = url
         .newBuilder()
         .setQueryParameter(RANDOM_QUERY_PARAM, UUID.randomUUID().toString())
         .build()
 
-    private fun timestampIsExpired(timestamp: String): Boolean = System.currentTimeMillis() - DATE_FORMAT.parse(
+    private fun timestampIsExpired(
+        timestamp: String,
+        captureMaxAge: Duration,
+    ): Boolean = System.currentTimeMillis() - DATE_FORMAT.parse(
         timestamp,
-    )!!.time > snapshotMaxAgeMS
+    )!!.time > captureMaxAge.inWholeMilliseconds
 
     private fun spn(
         credentials: String,
         body: FormBody,
-    ): Response = runBlocking {
-        client.post(
+    ): Response = client.newCall(
+        POST(
             SAVE_PREFIX,
             Headers
                 .Builder()
@@ -84,9 +93,8 @@ internal class NetworkInterceptor(
                 .add("Authorization", "LOW $credentials")
                 .build(),
             body,
-            ensureSuccess = false,
-        )
-    }
+        ),
+    ).execute()
 
     @Serializable
     private class SaveResponse(
@@ -114,17 +122,24 @@ internal class NetworkInterceptor(
         }
 
         val url = origUrlStr.substring(WEB_PREFIX.length).toHttpUrl()
+        val preferences = request.tag(SharedPreferences::class.java)
+        val captureMaxAge = preferences?.getWaybackMachineCaptureMaxAgePref()?.let {
+            Duration.parse(it)
+        } ?: 1.days
+        val credentials = preferences?.getWaybackMachineS3CredentialsPref()
 
         return chain.proceed(
             request.newBuilder().url(
                 getTimestamp(origUrl).let { timestamp ->
-                    if (timestamp != null && !timestampIsExpired(timestamp)) {
-                        getSnapshotUrl(timestamp, url)
+                    if (timestamp != null && !timestampIsExpired(timestamp, captureMaxAge)) {
+                        getCaptureUrl(timestamp, url)
                     } else {
-                        snapshot(
+                        capture(
                             url,
                             request.headers,
-                        ) ?: getSnapshotUrl(
+                            captureMaxAge,
+                            credentials,
+                        ) ?: getCaptureUrl(
                             timestamp ?: throw IOException("Failed to archive page $url"),
                             url,
                         )
@@ -134,19 +149,22 @@ internal class NetworkInterceptor(
         )
     }
 
-    private fun snapshotHelper(url: HttpUrl, headers: Headers): String? = rateLimit {
-        val credentials = preferences?.getWaybackMachineS3CredentialsPref()
+    private fun captureHelper(
+        url: HttpUrl,
+        headers: Headers,
+        captureMaxAge: Duration,
+        credentials: String?,
+    ): String? = rateLimit {
         if (credentials?.isNotEmpty() == true) {
-            spnSnapshotSemaphore.withPermit {
+            spnCaptureSemaphore.withPermit {
                 val id = spn(
                     credentials,
                     FormBody
                         .Builder()
                         .add("url", url.toString())
-                        .add("capture_outlinks", "1")
+                        .add("force_get", "1")
                         .add("skip_first_archive", "1")
-                        .add("if_not_archived_within", (snapshotMaxAgeMS / 1000).toString())
-                        .add("js_behavior_timeout", "0")
+                        .add("if_not_archived_within", captureMaxAge.inWholeSeconds.toString())
                         .add("capture_cookie", headers["Cookie"] ?: "")
                         .add("use_user_agent", headers["User-Agent"] ?: "")
                         .build(),
@@ -183,7 +201,7 @@ internal class NetworkInterceptor(
                 statusResponse.timestamp
             }
         } else {
-            snapshotSemaphore.withPermit {
+            captureSemaphore.withPermit {
                 getTimestamp("$SAVE_PREFIX$url".toHttpUrl()).also {
                     if (it == null) {
                         Toast.makeText(
@@ -197,28 +215,34 @@ internal class NetworkInterceptor(
         }
     }
 
-    private inline fun <R> snapshot(
+    private inline fun <R> capture(
         url: HttpUrl,
         headers: Headers,
+        captureMaxAge: Duration,
+        credentials: String?,
         block: (String, HttpUrl) -> R?,
-    ): R? = snapshotHelper(url, headers)?.let { timestamp ->
+    ): R? = captureHelper(url, headers, captureMaxAge, credentials)?.let { timestamp ->
         block(timestamp, url)
     } ?: getRetryUrl(url).let { retryUrl ->
-        // Retry snapshot with a new URL
-        snapshotHelper(retryUrl, headers)?.let { timestamp ->
+        // Retry capture with a new URL
+        captureHelper(retryUrl, headers, captureMaxAge, credentials)?.let { timestamp ->
             block(timestamp, retryUrl)
         }
     }
 
     /**
-     * Creates a snapshot and returns the snapshot URL
+     * Creates a capture and returns the capture URL
      */
-    private fun snapshot(
+    private fun capture(
         url: HttpUrl,
         headers: Headers,
-    ): HttpUrl? = snapshot(
+        captureMaxAge: Duration,
+        credentials: String?,
+    ): HttpUrl? = capture(
         url,
         headers,
-        ::getSnapshotUrl,
+        captureMaxAge,
+        credentials,
+        ::getCaptureUrl,
     )
 }

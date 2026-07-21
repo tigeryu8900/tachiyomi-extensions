@@ -26,7 +26,13 @@ internal class ApplicationInterceptor(
             return chain.proceed(request)
         }
 
-        val response = chain.proceed(request.newBuilder().url("$WEB_PREFIX$url").build())
+        val response = chain.proceed(
+            request
+                .newBuilder()
+                .url("$WEB_PREFIX$url")
+                .tag(SharedPreferences::class.java, preferences)
+                .build(),
+        )
 
         if (
             response.request.url.host == HOST &&
