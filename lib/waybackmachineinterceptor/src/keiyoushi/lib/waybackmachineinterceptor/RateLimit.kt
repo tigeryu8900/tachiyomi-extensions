@@ -15,7 +15,7 @@ internal object RateLimit {
     val lock = ReentrantLock(true)
     val condition: Condition = lock.newCondition()
 
-    inline fun <R> rateLimit(block: () -> R): R = lock.withLock {
+    fun rateLimit(): Unit = lock.withLock {
         while (queue.size >= PERMITS) { // queue is full, remove expired entries
             val periodStart = SystemClock.elapsedRealtime().milliseconds - rateLimit
             if (!queue.isEmpty() && queue.first() <= periodStart) {
@@ -32,9 +32,6 @@ internal object RateLimit {
             }
         }
 
-        // add request to queue
         queue.addLast(SystemClock.elapsedRealtime().milliseconds)
-
-        block()
     }
 }

@@ -154,7 +154,7 @@ internal object NetworkInterceptor : Interceptor {
         headers: Headers,
         captureMaxAge: Duration,
         credentials: String?,
-    ): String? = rateLimit {
+    ): String? = rateLimit().run {
         if (credentials?.isNotEmpty() == true) {
             spnCaptureSemaphore.withPermit {
                 val id = spn(
