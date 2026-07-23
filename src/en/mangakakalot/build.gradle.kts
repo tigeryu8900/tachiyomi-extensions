@@ -6,7 +6,7 @@ plugins {
 
 keiyoushi {
     name = "Mangakakalot"
-    versionCode = 8
+    versionCode = 9
     contentWarning = ContentWarning.MIXED
     libVersion = "1.6"
     theme = "mangabox"
