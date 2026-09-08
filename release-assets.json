@@ -1,12 +1,12 @@
 {
   "eu.kanade.tachiyomi.extension.all.mangadex": {
     "apk": {
-      "name": "tachiyomi-all.mangadex-v1.6.213.apk",
-      "sha256": "fb7603ef909a102165bb1c8bebb464b1e5ef4b7f4d33b74a44f8db0cb43f7d39"
+      "name": "tachiyomi-all.mangadex-v1.6.0.apk",
+      "sha256": "42359c3cea9e2cc8655c1508b5175a73c7a2af5174158c0422445a54b555f443"
     },
     "jar": {
-      "name": "tachiyomi-all.mangadex-v1.6.213.jar",
-      "sha256": "9db7e92b6b4501bd4a034ad41b891ceb78e6b703bac5cdba30b74ac4fa758fd1"
+      "name": "tachiyomi-all.mangadex-v1.6.0.jar",
+      "sha256": "55b608064ac3b52d6aae45ef9f0bb2a66fb1f032f1db857c598989108925a7ee"
     }
   },
   "eu.kanade.tachiyomi.extension.all.mangafire": {
