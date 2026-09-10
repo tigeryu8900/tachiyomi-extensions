@@ -145,7 +145,14 @@ class MangaDex(
         .addQueryParameter("limit", MDConstants.LATEST_CHAPTER_LIMIT.toString())
         .addQueryParameter("translatedLanguage[]", dexLang)
         .addQueryParameter("order[publishAt]", "desc")
-        .addQueryParameter("includeFutureUpdates", if (isDelegate()) { "1" } else { "0" })
+        .addQueryParameter(
+            "includeFutureUpdates",
+            if (isDelegate()) {
+                "1"
+            } else {
+                "0"
+            },
+        )
         .addQueryParameter("originalLanguage[]", preferences.originalLanguages)
         .addQueryParameter("contentRating[]", preferences.contentRating)
         .addQueryParameter(
@@ -406,7 +413,14 @@ class MangaDex(
         .addQueryParameter("limit", MDConstants.LATEST_CHAPTER_LIMIT.toString())
         .addQueryParameter("translatedLanguage[]", dexLang)
         .addQueryParameter("order[publishAt]", "desc")
-        .addQueryParameter("includeFutureUpdates", if (isDelegate()) { "1" } else { "0" })
+        .addQueryParameter(
+            "includeFutureUpdates",
+            if (isDelegate()) {
+                "1"
+            } else {
+                "0"
+            },
+        )
         .addQueryParameter("includeFuturePublishAt", "0")
         .addQueryParameter("includeEmptyPages", "0")
         .addQueryParameter("uploader", uploader)
