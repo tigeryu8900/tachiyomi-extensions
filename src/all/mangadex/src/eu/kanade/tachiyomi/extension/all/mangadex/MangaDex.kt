@@ -70,9 +70,12 @@ class MangaDex(
     private val preferences by getPreferencesLazy { sanitizeExistingUuidPrefs() }
 
     @Suppress("DEPRECATION")
-    private val appPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(applicationContext)!! }
-
-    private val komikku = applicationContext.packageName.startsWith("app.komikku")
+    private fun isDelegate() = try {
+        val komikku = applicationContext.packageName.startsWith("app.komikku")
+        PreferenceManager.getDefaultSharedPreferences(applicationContext)!!.getBoolean("eh_delegate_sources", komikku)
+    } catch (_: Throwable) {
+        false
+    }
 
     private val helper = MangaDexHelper(lang)
 
@@ -142,18 +145,7 @@ class MangaDex(
         .addQueryParameter("limit", MDConstants.LATEST_CHAPTER_LIMIT.toString())
         .addQueryParameter("translatedLanguage[]", dexLang)
         .addQueryParameter("order[publishAt]", "desc")
-        .addQueryParameter(
-            "includeFutureUpdates",
-            try {
-                if (appPreferences.getBoolean("eh_delegate_sources", komikku)) {
-                    "1"
-                } else {
-                    "0"
-                }
-            } catch (_: Throwable) {
-                "0"
-            },
-        )
+        .addQueryParameter("includeFutureUpdates", if (isDelegate()) { "1" } else { "0" })
         .addQueryParameter("originalLanguage[]", preferences.originalLanguages)
         .addQueryParameter("contentRating[]", preferences.contentRating)
         .addQueryParameter(
@@ -414,18 +406,7 @@ class MangaDex(
         .addQueryParameter("limit", MDConstants.LATEST_CHAPTER_LIMIT.toString())
         .addQueryParameter("translatedLanguage[]", dexLang)
         .addQueryParameter("order[publishAt]", "desc")
-        .addQueryParameter(
-            "includeFutureUpdates",
-            try {
-                if (appPreferences.getBoolean("eh_delegate_sources", komikku)) {
-                    "1"
-                } else {
-                    "0"
-                }
-            } catch (_: Throwable) {
-                "0"
-            },
-        )
+        .addQueryParameter("includeFutureUpdates", if (isDelegate()) { "1" } else { "0" })
         .addQueryParameter("includeFuturePublishAt", "0")
         .addQueryParameter("includeEmptyPages", "0")
         .addQueryParameter("uploader", uploader)
@@ -549,7 +530,7 @@ class MangaDex(
             throw Exception(helper.intl["migrate_warning"])
         }
 
-        val response = client.get(paginatedChapterListUrl(helper.getUUIDFromUrl(manga.url), 0))
+        val response = client.get(paginatedChapterListUrl(helper.getUUIDFromUrl(manga.url), 0), CacheControl.FORCE_NETWORK)
         if (response.code == 204) {
             return emptyList()
         }
