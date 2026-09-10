@@ -11,9 +11,9 @@
         "name": "MangaDex",
         "packageName": "eu.kanade.tachiyomi.extension.all.mangadex",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/4e721af/tachiyomi-all.mangadex-v1.6.0.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-all.mangadex-v1.6.0.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/all/mangadex/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/4e721af/tachiyomi-all.mangadex-v1.6.0.jar"
+          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-all.mangadex-v1.6.0.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106000",
@@ -392,7 +392,7 @@
         "name": "MangaFire",
         "packageName": "eu.kanade.tachiyomi.extension.all.mangafire",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-all.mangafire-v1.6.34.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-all.mangafire-v1.6.34.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/all/mangafire/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-all.mangafire-v1.6.34.jar"
         },
@@ -449,7 +449,7 @@
         "name": "Art Lapsa",
         "packageName": "eu.kanade.tachiyomi.extension.en.artlapsa",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.artlapsa-v1.6.26.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.artlapsa-v1.6.26.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/artlapsa/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.artlapsa-v1.6.26.jar"
         },
@@ -470,7 +470,7 @@
         "name": "Asmodeus Scans",
         "packageName": "eu.kanade.tachiyomi.extension.en.asmotoon",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.asmotoon-v1.6.24.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.asmotoon-v1.6.24.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/asmotoon/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.asmotoon-v1.6.24.jar"
         },
@@ -491,7 +491,7 @@
         "name": "Mangabat",
         "packageName": "eu.kanade.tachiyomi.extension.en.mangabat",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.mangabat-v1.6.23.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.mangabat-v1.6.23.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/mangabat/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.mangabat-v1.6.23.jar"
         },
@@ -512,7 +512,7 @@
         "name": "Mangakakalot",
         "packageName": "eu.kanade.tachiyomi.extension.en.mangakakalot",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.mangakakalot-v1.6.24.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.mangakakalot-v1.6.24.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/mangakakalot/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.mangakakalot-v1.6.24.jar"
         },
@@ -537,7 +537,7 @@
         "name": "Manganato",
         "packageName": "eu.kanade.tachiyomi.extension.en.manganelo",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.manganelo-v1.6.22.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.manganelo-v1.6.22.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/manganelo/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.manganelo-v1.6.22.jar"
         },
@@ -563,7 +563,7 @@
         "name": "RitharScans",
         "packageName": "eu.kanade.tachiyomi.extension.en.ritharscans",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.ritharscans-v1.6.24.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.ritharscans-v1.6.24.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/ritharscans/res/mipmap-xhdpi/ic_launcher.png",
           "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.ritharscans-v1.6.24.jar"
         },
