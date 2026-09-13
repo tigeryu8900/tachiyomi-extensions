@@ -71,12 +71,12 @@
   },
   "eu.kanade.tachiyomi.extension.en.ritharscans": {
     "apk": {
-      "name": "tachiyomi-en.ritharscans-v1.6.24.apk",
-      "sha256": "d0033a514cfa0a1fbd57e056112d813a411a028cf9ed2a5b1a24cfab963d828b"
+      "name": "tachiyomi-en.ritharscans-v1.6.25.apk",
+      "sha256": "c7299525f1fcd5ed33adcb4573315cdda38bb4f5ca260956f71512efbbe9bee9"
     },
     "jar": {
-      "name": "tachiyomi-en.ritharscans-v1.6.24.jar",
-      "sha256": "74d5b723b4ea5fd66517de1cedf12234cec6eee7fddc013041540887696be071"
+      "name": "tachiyomi-en.ritharscans-v1.6.25.jar",
+      "sha256": "6054fedc12cc0da9be8970e1731c5cffd4892de36fbd693436f9dd501298fd1b"
     }
   }
 }

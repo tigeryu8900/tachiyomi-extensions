@@ -563,13 +563,13 @@
         "name": "RitharScans",
         "packageName": "eu.kanade.tachiyomi.extension.en.ritharscans",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/744f505/tachiyomi-en.ritharscans-v1.6.24.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/8a79553/tachiyomi-en.ritharscans-v1.6.25.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/ritharscans/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/78c74c8/tachiyomi-en.ritharscans-v1.6.24.jar"
+          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/8a79553/tachiyomi-en.ritharscans-v1.6.25.jar"
         },
         "extensionLib": "1.6",
-        "versionCode": "106024",
-        "versionName": "1.6.24",
+        "versionCode": "106025",
+        "versionName": "1.6.25",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {
