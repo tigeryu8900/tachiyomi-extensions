@@ -12,17 +12,14 @@ import androidx.webkit.WebViewFeature
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.util.system.isOutdated
 import keiyoushi.utils.ForegroundActivity
+import keiyoushi.utils.injektOnce
 import keiyoushi.utils.runWebViewBlocking
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody
 import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.TypeReference
-import uy.kohesive.injekt.api.addSingleton
-import uy.kohesive.injekt.api.fullType
 import uy.kohesive.injekt.api.get
-import uy.kohesive.injekt.api.hasFactory
 import java.io.IOException
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.thread
@@ -43,31 +40,22 @@ internal object CloudflareInterceptor : Interceptor {
     private typealias LocksData = LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>
 
     private val locks = object {
-        private val data by lazy {
-            with(Injekt.registrar) {
-                synchronized(this) {
-                    if (!hasFactory<Pair<TypeReference<OldCloudflareInterceptor>, LocksData>>()) {
-                        addSingleton<Pair<TypeReference<OldCloudflareInterceptor>, LocksData>>(
-                            fullType<OldCloudflareInterceptor>() to object : LocksData() {
-                                private val MAX_CAPACITY = 256
+        private val data = injektOnce<OldCloudflareInterceptor, LocksData> {
+            object : LocksData() {
+                private val MAX_CAPACITY = 256
 
-                                override fun removeEldestEntry(
-                                    eldest: Map.Entry<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>,
-                                ): Boolean {
-                                    if (size > MAX_CAPACITY) {
-                                        eldest.value.second.writeLock().withLock {
-                                            if (size > MAX_CAPACITY) {
-                                                remove(eldest.key)
-                                            }
-                                        }
-                                    }
-                                    return false
-                                }
-                            },
-                        )
+                override fun removeEldestEntry(
+                    eldest: Map.Entry<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>,
+                ): Boolean {
+                    if (size > MAX_CAPACITY) {
+                        eldest.value.second.writeLock().withLock {
+                            if (size > MAX_CAPACITY) {
+                                remove(eldest.key)
+                            }
+                        }
                     }
+                    return false
                 }
-                get<Pair<TypeReference<OldCloudflareInterceptor>, LocksData>>().second
             }
         }
 

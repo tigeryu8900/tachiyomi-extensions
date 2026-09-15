@@ -4,9 +4,10 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.appcompat)
+    //noinspection UseTomlInstead
+    compileOnly("androidx.appcompat:appcompat:1.8.0")
+    compileOnly("androidx.webkit:webkit:1.17.0")
     compileOnly(libs.bundles.common)
-    compileOnly(libs.webkit)
     compileOnly(libs.tachiyomi.lib.v16)
 }
 

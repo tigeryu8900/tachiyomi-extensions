@@ -20,9 +20,11 @@ android {
 
 dependencies {
     // TACH -->
-    implementation(libs.webkit) {
+    implementation("androidx.webkit:webkit:1.17.0") {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
+    //noinspection UseTomlInstead
+    compileOnly("io.insert-koin:koin-core:4.2.2")
     compileOnly(project(":stub"))
     // <-- TACH
 

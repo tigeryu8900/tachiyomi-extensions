@@ -4,9 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.ViewGroup
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.TypeReference
-import uy.kohesive.injekt.api.addSingleton
 import uy.kohesive.injekt.api.fullType
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.atomic.AtomicReference
@@ -21,20 +18,7 @@ import java.util.concurrent.atomic.AtomicReference
  * Adapted from https://github.com/unseensnick/Reikai/blob/14d3d54/core/common/src/main/kotlin/eu/kanade/tachiyomi/util/system/ForegroundActivity.kt
  */
 object ForegroundActivity : Application.ActivityLifecycleCallbacks {
-    private typealias CallbacksTypeRef = TypeReference<Application.ActivityLifecycleCallbacks>
-    private typealias ActivityRef = AtomicReference<Activity?>
-
-    private val last: ActivityRef = with(Injekt.registrar) {
-        synchronized(this) {
-            if (!hasFactory(fullType<Pair<CallbacksTypeRef, ActivityRef>>())) {
-                addSingleton<Pair<CallbacksTypeRef, ActivityRef>>(
-                    fullType<Application.ActivityLifecycleCallbacks>() to ActivityRef(null),
-                )
-                get<Application>().registerActivityLifecycleCallbacks(this@ForegroundActivity)
-            }
-        }
-        get<Pair<CallbacksTypeRef, ActivityRef>>().second
-    }
+    private val last = injektOnce(fullType<Application.ActivityLifecycleCallbacks>()) { AtomicReference<Activity?>(null) }
 
     val current: Activity? get() = last.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
 
