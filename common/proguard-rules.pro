@@ -56,3 +56,7 @@
 
 # dont obfuscate chromium boundry interfaces, needed for reflections; used by runWebView
 -keepnames interface org.chromium.support_lib_boundary.** { *; }
+
+# TACH -->
+-dontwarn org.koin.core.**
+# <-- TACH
