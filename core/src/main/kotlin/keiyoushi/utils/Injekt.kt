@@ -3,34 +3,30 @@ package keiyoushi.utils
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatformTools
 import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.TypeReference
 import uy.kohesive.injekt.api.addSingleton
 import uy.kohesive.injekt.api.fullType
-import uy.kohesive.injekt.api.getOrElse
-import kotlin.Pair
+import kotlin.collections.mutableMapOf
 
-inline fun <reified ID : Any, reified T : Any> injektOnce(
-    id: TypeReference<ID> = fullType<ID>(),
-    crossinline block: () -> T,
-): T = with(Injekt.registrar) {
+inline fun <reified T : Any> injektOrAddByKey(key: Any, crossinline block: () -> T): T = with(Injekt.registrar) {
     synchronized(this) {
-        getOrElse {
-            (id to block()).also { result ->
+        getInstanceOrElse(fullType<MutableMap<Any, Any>>().type) {
+            mutableMapOf<Any, Any>().also { map ->
                 try {
-                    addSingleton<Pair<TypeReference<ID>, T>>(result)
+                    addSingleton(map)
                     return@also
                 } catch (_: Throwable) {}
                 try {
                     KoinPlatformTools.defaultContext().get().loadModules(
                         listOf(
                             module {
-                                single<Pair<TypeReference<ID>, T>> { result }
+                                single { map }
                             },
                         ),
                     )
                     return@also
                 } catch (_: Throwable) {}
+                throw UnsupportedOperationException("Adding singletons is not supported")
             }
-        }.second
+        }.getOrPut(key, block) as T
     }
 }

@@ -4,8 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.ViewGroup
-import uy.kohesive.injekt.api.fullType
-import uy.kohesive.injekt.api.get
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -18,7 +16,10 @@ import java.util.concurrent.atomic.AtomicReference
  * Adapted from https://github.com/unseensnick/Reikai/blob/14d3d54/core/common/src/main/kotlin/eu/kanade/tachiyomi/util/system/ForegroundActivity.kt
  */
 object ForegroundActivity : Application.ActivityLifecycleCallbacks {
-    private val last = injektOnce(fullType<Application.ActivityLifecycleCallbacks>()) { AtomicReference<Activity?>(null) }
+    private val last = injektOrAddByKey("FOREGROUND_ACTIVITY_LAST") {
+        applicationContext.registerActivityLifecycleCallbacks(this)
+        AtomicReference<Activity?>(null)
+    }
 
     val current: Activity? get() = last.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
 

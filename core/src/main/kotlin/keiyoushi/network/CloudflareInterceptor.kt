@@ -12,7 +12,7 @@ import androidx.webkit.WebViewFeature
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.util.system.isOutdated
 import keiyoushi.utils.ForegroundActivity
-import keiyoushi.utils.injektOnce
+import keiyoushi.utils.injektOrAddByKey
 import keiyoushi.utils.runWebViewBlocking
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
@@ -24,7 +24,6 @@ import java.io.IOException
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import eu.kanade.tachiyomi.network.interceptor.CloudflareInterceptor as OldCloudflareInterceptor
 
 internal object CloudflareInterceptor : Interceptor {
     private val listenerScript = """
@@ -37,11 +36,9 @@ internal object CloudflareInterceptor : Interceptor {
 
     private val networkHelper: NetworkHelper = Injekt.get()
 
-    private typealias LocksData = LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>
-
     private val locks = object {
-        private val data = injektOnce<OldCloudflareInterceptor, LocksData> {
-            object : LocksData() {
+        private val data = injektOrAddByKey("CLOUDFLARE_INTERCEPTOR_LOCKS_DATA") {
+            object : LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>() {
                 private val MAX_CAPACITY = 256
 
                 override fun removeEldestEntry(
