@@ -58,5 +58,5 @@
 -keepnames interface org.chromium.support_lib_boundary.** { *; }
 
 # TACH -->
--dontwarn org.koin.core.**
+-dontwarn org.koin.**
 # <-- TACH
