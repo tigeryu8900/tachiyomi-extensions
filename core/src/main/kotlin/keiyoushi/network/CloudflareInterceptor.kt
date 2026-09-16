@@ -36,9 +36,11 @@ internal object CloudflareInterceptor : Interceptor {
 
     private val networkHelper: NetworkHelper = Injekt.get()
 
+    private typealias LocksData = LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>
+
     private val locks = object {
-        private val data = injektOrAddByKey("CLOUDFLARE_INTERCEPTOR_LOCKS_DATA") {
-            object : LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>() {
+        private val data = injektOrAddByKey<LocksData>("CLOUDFLARE_INTERCEPTOR_LOCKS_DATA") {
+            object : LocksData() {
                 private val MAX_CAPACITY = 256
 
                 override fun removeEldestEntry(
