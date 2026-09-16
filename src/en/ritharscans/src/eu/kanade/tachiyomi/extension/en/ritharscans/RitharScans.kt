@@ -36,6 +36,18 @@ abstract class RitharScans : Keyoapp() {
     override val typeSelector = "[alt=Type]"
 
     // TACH -->
+    @Serializable
+    data class ChapterLD(
+        val isPartOf: SeriesLD,
+        val numberOfPages: Int,
+        val url: String,
+    )
+
+    @Serializable
+    data class SeriesLD(
+        val url: String,
+    )
+
     override fun pageListParse(document: Document): List<Page> {
         val data = document.selectFirst("script[type=\"application/ld+json\"]")!!.data().parseAs<ChapterLD>()
         val chapterID = data.url.substringAfterLast('/')
@@ -112,20 +124,6 @@ abstract class RitharScans : Keyoapp() {
     }
     <-- TACH */
 }
-
-// TACH -->
-@Serializable
-internal data class ChapterLD(
-    val isPartOf: SeriesLD,
-    val numberOfPages: Int,
-    val url: String,
-)
-
-@Serializable
-internal data class SeriesLD(
-    val url: String,
-)
-// <-- TACH
 
 /* TACH -->
 @Serializable
