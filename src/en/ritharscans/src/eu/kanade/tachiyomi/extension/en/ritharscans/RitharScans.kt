@@ -52,12 +52,23 @@ abstract class RitharScans : Keyoapp() {
         val data = document.selectFirst("script[type=\"application/ld+json\"]")!!.data().parseAs<ChapterLD>()
         val chapterID = data.url.substringAfterLast('/')
         val seriesID = data.isPartOf.url.substringAfterLast('/')
+        val revisionID = document
+            .selectFirst("meta[property=\"og:image\"]")
+            ?.attr("content")
+            ?.substringAfter("/revisions/", "")
+            ?.substringBefore('/')
+
+        val prefix = if (revisionID.isNullOrEmpty()) {
+            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/"
+        } else {
+            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
+        }
 
         return (1..data.numberOfPages).mapIndexed { i, page ->
             Page(
                 i,
                 url = document.location(),
-                imageUrl = "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/${page.toString().padStart(3, '0')}.jpg",
+                imageUrl = "$prefix${page.toString().padStart(3, '0')}.jpg",
             )
         }
     }

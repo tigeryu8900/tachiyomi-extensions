@@ -43,29 +43,62 @@ abstract class ArtLapsa : Keyoapp() {
 
     override val paidChapterSelector = "img[alt~=Coin], img[src*=star-circle]"
 
+    // TACH -->
+    @Serializable
+    data class ChapterLD(
+        val isPartOf: SeriesLD,
+        val numberOfPages: Int,
+        val url: String,
+    )
+
+    @Serializable
+    data class SeriesLD(
+        val url: String,
+    )
+
     override fun pageListParse(document: Document): List<Page> {
         val data = document.selectFirst("script[type=\"application/ld+json\"]")!!.data().parseAs<ChapterLD>()
         val chapterID = data.url.substringAfterLast('/')
         val seriesID = data.isPartOf.url.substringAfterLast('/')
+        val revisionID = document
+            .selectFirst("meta[property=\"og:image\"]")
+            ?.attr("content")
+            ?.substringAfter("/revisions/", "")
+            ?.substringBefore('/')
+
+        val prefix = if (revisionID.isNullOrEmpty()) {
+            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/"
+        } else {
+            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
+        }
 
         return (1..data.numberOfPages).mapIndexed { i, page ->
             Page(
                 i,
                 url = document.location(),
-                imageUrl = "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/${page.toString().padStart(3, '0')}.jpg",
+                imageUrl = "$prefix${page.toString().padStart(3, '0')}.jpg",
             )
         }
     }
+    // <--TACH
+
+    /* TACH -->
+    override fun pageListParse(document: Document): List<Page> {
+        val xData = document.selectFirst("[x-data^=immersiveReader]")!!.attr("x-data")
+        val pagesJs = xData.substringAfter("JSON.parse('", "").substringBefore("')")
+        if (pagesJs.isEmpty()) throw Exception("Log in via WebView and purchase this chapter to read.")
+
+        val pagesJson = "\"$pagesJs\"".parseAs<String>()
+        return pagesJson.parseAs<List<PageDto>>().mapIndexed { i, page ->
+            Page(i, imageUrl = page.path)
+        }
+    }
+    <-- TACH */
 }
 
+/* TACH -->
 @Serializable
-internal class ChapterLD(
-    val isPartOf: SeriesLD,
-    val numberOfPages: Int,
-    val url: String,
+private class PageDto(
+    val path: String,
 )
-
-@Serializable
-internal class SeriesLD(
-    val url: String,
-)
+<-- TACH */
