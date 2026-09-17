@@ -449,13 +449,13 @@
         "name": "Art Lapsa",
         "packageName": "eu.kanade.tachiyomi.extension.en.artlapsa",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/369047d/tachiyomi-en.artlapsa-v1.6.26.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/fe7bd5d/tachiyomi-en.artlapsa-v1.6.27.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/artlapsa/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/369047d/tachiyomi-en.artlapsa-v1.6.26.jar"
+          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/fe7bd5d/tachiyomi-en.artlapsa-v1.6.27.jar"
         },
         "extensionLib": "1.6",
-        "versionCode": "106026",
-        "versionName": "1.6.26",
+        "versionCode": "106027",
+        "versionName": "1.6.27",
         "contentWarning": "CONTENT_WARNING_MIXED",
         "sources": [
           {
@@ -563,9 +563,9 @@
         "name": "RitharScans",
         "packageName": "eu.kanade.tachiyomi.extension.en.ritharscans",
         "resources": {
-          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/369047d/tachiyomi-en.ritharscans-v1.6.25.apk",
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/fe7bd5d/tachiyomi-en.ritharscans-v1.6.25.apk",
           "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/ritharscans/res/mipmap-xhdpi/ic_launcher.png",
-          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/369047d/tachiyomi-en.ritharscans-v1.6.25.jar"
+          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/fe7bd5d/tachiyomi-en.ritharscans-v1.6.25.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106025",
