@@ -7,7 +7,10 @@ import keiyoushi.annotation.Source
 import keiyoushi.network.get
 import keiyoushi.utils.asJsoup
 import keiyoushi.utils.parseAs
+import keiyoushi.utils.stringOrNull
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
+import kotlinx.serialization.json.JsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Response
 import org.jsoup.nodes.Document
@@ -45,7 +48,13 @@ abstract class ArtLapsa : Keyoapp() {
 
     // TACH -->
     @Serializable
-    data class ChapterLD(
+    data class GraphLD(
+        @JsonNames("@graph")
+        val graph: List<JsonObject>,
+    )
+
+    @Serializable
+    data class IssueLD(
         val isPartOf: SeriesLD,
         val numberOfPages: Int,
         val url: String,
@@ -57,7 +66,13 @@ abstract class ArtLapsa : Keyoapp() {
     )
 
     override fun pageListParse(document: Document): List<Page> {
-        val data = document.selectFirst("script[type=\"application/ld+json\"]")!!.data().parseAs<ChapterLD>()
+        val data = document
+            .selectFirst("script[type=\"application/ld+json\"]")!!
+            .data()
+            .parseAs<GraphLD>()
+            .graph
+            .find { it["@type"]?.stringOrNull == "@ComicIssue" }!!
+            .parseAs<IssueLD>()
         val chapterID = data.url.substringAfterLast('/')
         val seriesID = data.isPartOf.url.substringAfterLast('/')
         val revisionID = document
