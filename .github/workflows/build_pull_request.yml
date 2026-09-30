@@ -60,7 +60,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
-          java-version: 17
+          java-version: 25
           distribution: temurin
 
       - name: Set up Gradle
@@ -80,9 +80,7 @@ jobs:
 
       - name: Upload APKs (${{ matrix.chunk.number }})
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        # TACH -->
-        if: "github.repository == 'tigeryu8900/tachiyomi-extensions'"
-        # <-- TACH
+        if: "github.repository == 'keiyoushi/extensions-source'"
         with:
           name: "individual-apks-${{ matrix.chunk.number }}"
           path: |
@@ -105,7 +103,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
-          java-version: 17
+          java-version: 25
           distribution: temurin
 
       - name: Set up Gradle
