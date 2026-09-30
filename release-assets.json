@@ -22,11 +22,11 @@
   "eu.kanade.tachiyomi.extension.en.artlapsa": {
     "apk": {
       "name": "tachiyomi-en.artlapsa-v1.6.27.apk",
-      "sha256": "50b98538243018bb1fe78862adbf46354a243150e1ce83a05d45059a6b88f052"
+      "sha256": "e11d2b06b4675ee584459f890e92848ce98cc7f67a99d9827815063f92b7d067"
     },
     "jar": {
       "name": "tachiyomi-en.artlapsa-v1.6.27.jar",
-      "sha256": "e894d24ff738db8cfdcdf76f487a58341aad28ae34f60fb1892c4f4e0266d1ab"
+      "sha256": "b794f7a600b73a803747252b0d7d4c4d476d7d572facdeb5384e708f1e21d24d"
     }
   },
   "eu.kanade.tachiyomi.extension.en.asmotoon": {
@@ -72,11 +72,11 @@
   "eu.kanade.tachiyomi.extension.en.ritharscans": {
     "apk": {
       "name": "tachiyomi-en.ritharscans-v1.6.25.apk",
-      "sha256": "a9eb06f9e0586cc506480eeed35d5f2478e18c30f79496a99bc2e2e3e4b0de63"
+      "sha256": "907c3e5d13b0dac92f81e876006d98420648cee04b34ef4c4cd9dec65bdc1903"
     },
     "jar": {
       "name": "tachiyomi-en.ritharscans-v1.6.25.jar",
-      "sha256": "614c62702a5edc664b3c140a5ab26c2f63c69ddcaf08ff349362760c7d961848"
+      "sha256": "095a86f79f5a6c08a56cd74c67b8330d24104a54b9717c8da5ec3d06792a98b7"
     }
   }
 }
