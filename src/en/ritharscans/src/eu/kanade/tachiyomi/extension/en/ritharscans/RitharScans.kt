@@ -74,9 +74,9 @@ abstract class RitharScans : Keyoapp() {
             ?.substringBefore('/')
 
         val prefix = if (revisionID.isNullOrEmpty()) {
-            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/"
+            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/"
         } else {
-            "$baseUrl/storage/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
+            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
         }
 
         return (1..data.numberOfPages).mapIndexed { i, page ->
