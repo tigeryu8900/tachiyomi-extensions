@@ -63,7 +63,7 @@ abstract class RitharScans : Keyoapp() {
             .data()
             .parseAs<GraphLD>()
             .graph
-            .find { it["@type"]?.stringOrNull == "@ComicIssue" }!!
+            .find { it["@type"]?.stringOrNull == "ComicIssue" }!!
             .parseAs<IssueLD>()
         val chapterID = data.url.substringAfterLast('/')
         val seriesID = data.isPartOf.url.substringAfterLast('/')
