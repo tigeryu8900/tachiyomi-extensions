@@ -2,81 +2,81 @@
   "eu.kanade.tachiyomi.extension.all.mangadex": {
     "apk": {
       "name": "tachiyomi-all.mangadex-v1.6.0.apk",
-      "sha256": "320812528dd6abb14800cd9711a596cc40b13505e2ab2dc5d77c4e2ba1df8b2d"
+      "sha256": "9242cff18be5609080570eb7d71350bd57e77cb128840b1776f9119d4a20f8db"
     },
     "jar": {
       "name": "tachiyomi-all.mangadex-v1.6.0.jar",
-      "sha256": "2ac634c607ad4672cf55ca018b695c3457f921edc7634ba94754f0fe6aae10d3"
+      "sha256": "61a1e92ef700066ab026f5fca224048914f27f558fe2f037e55115b2d6a76180"
     }
   },
   "eu.kanade.tachiyomi.extension.all.mangafire": {
     "apk": {
       "name": "tachiyomi-all.mangafire-v1.6.34.apk",
-      "sha256": "e3fb4942047630ce0cb88a31c04085d8cfbac16ba278dc3b05e853ab58c96165"
+      "sha256": "b4cac26e5708876443e7e288bf326ecd68cc99493e17aa38da8b422f213990f0"
     },
     "jar": {
       "name": "tachiyomi-all.mangafire-v1.6.34.jar",
-      "sha256": "c8b14c55b9f7877684cc702c1e15734f9c1cfb5ca1be6f6d9856ccc1a696fd71"
+      "sha256": "afd29604e4511f2f4dcf334e7647f450f770ffeeba81d2990e97651949e9afd6"
     }
   },
   "eu.kanade.tachiyomi.extension.en.artlapsa": {
     "apk": {
       "name": "tachiyomi-en.artlapsa-v1.6.27.apk",
-      "sha256": "cd9c23df7d53de49cf0145f9540fc163838587fedcb41a58207e526e29fd8091"
+      "sha256": "617742f0a857107e4b5ffe9fce2ad9cf282d221bf1c22f5169879d407b38ddf2"
     },
     "jar": {
       "name": "tachiyomi-en.artlapsa-v1.6.27.jar",
-      "sha256": "50f76e0eeef76f920f21fb773e6aa308ccef5894e03f33a2d0fa8349d69b58aa"
+      "sha256": "9a8076ace31260ab908ff3c07c0b7324448588c6a8019110230155f0677e8d4b"
     }
   },
   "eu.kanade.tachiyomi.extension.en.asmotoon": {
     "apk": {
       "name": "tachiyomi-en.asmotoon-v1.6.24.apk",
-      "sha256": "359b94da1fad1280493ce7f186cb2bf597d70e32c0d8723d730af8539197df45"
+      "sha256": "e95b8029bad143ea584cf28263632fb55803dbb85ec63d2e032fa24f215e67ce"
     },
     "jar": {
       "name": "tachiyomi-en.asmotoon-v1.6.24.jar",
-      "sha256": "bbc98a67ab07ff5e382e564f68747f1fb1ff50ca7e3122df46f3eaad679032a3"
+      "sha256": "ed259ade4dfec53f8ee6020c8d16a21f7893989681a5efd4509c5961c1a24e81"
     }
   },
   "eu.kanade.tachiyomi.extension.en.mangabat": {
     "apk": {
       "name": "tachiyomi-en.mangabat-v1.6.23.apk",
-      "sha256": "ea163f4df45b636d33988542e2f4d865b410bb6604e5aa981b78cf46c7eb60d5"
+      "sha256": "3eeb07f75ddae6a5af41b19f87867aa2db4fd9fdb5987c409fbd804fc93ff308"
     },
     "jar": {
       "name": "tachiyomi-en.mangabat-v1.6.23.jar",
-      "sha256": "e23e2c53cdd0cae09fadd09f8d72c98bbcb3bf8fcb8c0881ba4e674af3bbd430"
+      "sha256": "81f41aa8a612e8bca0534b5a3c9b01a8bacd48d3752698636b5e68656f4d6d03"
     }
   },
   "eu.kanade.tachiyomi.extension.en.mangakakalot": {
     "apk": {
       "name": "tachiyomi-en.mangakakalot-v1.6.24.apk",
-      "sha256": "3f2d2a95b1f6546b1d8c4a2dc376ba0407f62d388730870e8fbc66ab44a06a26"
+      "sha256": "4f48858e813e51ae0b348a1f1091f64f879f45dfd946fd4ff610355a38524a60"
     },
     "jar": {
       "name": "tachiyomi-en.mangakakalot-v1.6.24.jar",
-      "sha256": "c3c632d10a12f05c643ddd3a2bce962d6b3ab05fa777049fd71e6c747599ce16"
+      "sha256": "ebc7ee293ccc3f2ec095f858130a2d87ac5068c96e259bf8d798b66b51f53e96"
     }
   },
   "eu.kanade.tachiyomi.extension.en.manganelo": {
     "apk": {
       "name": "tachiyomi-en.manganelo-v1.6.22.apk",
-      "sha256": "05276c8b52a8d6881c7d814af27ca37d535c9ca6facbb508933fb26eea142229"
+      "sha256": "016a83499432ff574716379a0a457f0e3ca3f58693e92701930614de91f09237"
     },
     "jar": {
       "name": "tachiyomi-en.manganelo-v1.6.22.jar",
-      "sha256": "b530a2341aacdd4f15162f4ef0625708d36056cb980d80ff97b702309fd132c7"
+      "sha256": "60e59bc8636cae80391de7a9a095d26e61b91c81e175202bf3f647dc6a535bbe"
     }
   },
   "eu.kanade.tachiyomi.extension.en.ritharscans": {
     "apk": {
       "name": "tachiyomi-en.ritharscans-v1.6.25.apk",
-      "sha256": "e1811d5599d9c580853dcc40d7a46c2d0c98fa987c50ed68f560ef7c550540ee"
+      "sha256": "74d160784ba53fe7107a35a99b1de44ef86fb934ec72fa945f6828886df899cf"
     },
     "jar": {
       "name": "tachiyomi-en.ritharscans-v1.6.25.jar",
-      "sha256": "438dd1271f52f3a8ea13828247e3adb56a820d6ceda77348fcee96aa35b19f56"
+      "sha256": "bf518d22ddfc6c4ddd843e5d0a8609e944d724d5f2b7d42638d004d6c5c6aaef"
     }
   }
 }
