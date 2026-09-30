@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document
 
 @Source
 abstract class ArtLapsa : Keyoapp() {
+    private val cdnUrl = baseUrl.toHttpUrl().let { "${it.scheme}://cdn.${it.host}" }
 
     override suspend fun requestGeneres() = client.get("$baseUrl/search")
 
@@ -82,9 +83,9 @@ abstract class ArtLapsa : Keyoapp() {
             ?.substringBefore('/')
 
         val prefix = if (revisionID.isNullOrEmpty()) {
-            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/"
+            "$cdnUrl/series/webtoon/$seriesID/chapters/$chapterID/"
         } else {
-            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
+            "$cdnUrl/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
         }
 
         return (1..data.numberOfPages).mapIndexed { i, page ->

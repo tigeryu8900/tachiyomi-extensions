@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element
 
 @Source
 abstract class RitharScans : Keyoapp() {
+    private val cdnUrl = baseUrl.toHttpUrl().let { "${it.scheme}://cdn.${it.host}" }
 
     override suspend fun requestGeneres() = client.get("$baseUrl/search")
 
@@ -74,9 +75,9 @@ abstract class RitharScans : Keyoapp() {
             ?.substringBefore('/')
 
         val prefix = if (revisionID.isNullOrEmpty()) {
-            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/"
+            "$cdnUrl/series/webtoon/$seriesID/chapters/$chapterID/"
         } else {
-            "$baseUrl/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
+            "$cdnUrl/series/webtoon/$seriesID/chapters/$chapterID/revisions/$revisionID/"
         }
 
         return (1..data.numberOfPages).mapIndexed { i, page ->
