@@ -14,6 +14,7 @@ import kotlinx.serialization.json.JsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Response
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 @Source
 abstract class ArtLapsa : Keyoapp() {
@@ -62,11 +63,31 @@ abstract class ArtLapsa : Keyoapp() {
         return MangasPage(mangas, hasNextPage = mangas.size >= 20)
     }
 
-    override val altNameSelector: String = "div.font-medium:containsOwn(Alternative titles) ~ div span.select-all"
-    override val statusSelector = "[alt=Status]"
-    override val typeSelector = "[alt=Type]"
+    // ====================== Details + Chapters ===========================
+
+    override val altNameSelector: String = "details[data-testid=series-other-names] li.select-all"
+    override val statusSelector = "a[aria-label=Status]"
+    override val typeSelector = "a[aria-label=Type]"
+    override val genreSelector = "div:has(>h1) a[href*='/genres/']"
+    override val authorSelector = "dt:contains(Author) + dd"
+    override val artistSelector = "dt:contains(Artist) + dd"
 
     override val paidChapterSelector = "img[alt~=Coin], img[src*=star-circle]"
+
+    // =============================== Pages ===============================
+
+    /* TACH -->
+    override fun pageListParse(document: Document): List<Page> {
+        val xData = document.selectFirst("[x-data^=immersiveReader]")!!.attr("x-data")
+        val pagesJs = xData.substringAfter("JSON.parse('", "").substringBefore("')")
+        if (pagesJs.isEmpty()) throw Exception("Log in via WebView and purchase this chapter to read.")
+
+        val pagesJson = "\"$pagesJs\"".parseAs<String>()
+        return pagesJson.parseAs<List<PageDto>>().mapIndexed { i, page ->
+            Page(i, imageUrl = page.path)
+        }
+    }
+    <-- TACH */
 
     // TACH -->
     @Serializable
@@ -121,18 +142,10 @@ abstract class ArtLapsa : Keyoapp() {
     }
     // <--TACH
 
-    /* TACH -->
-    override fun pageListParse(document: Document): List<Page> {
-        val xData = document.selectFirst("[x-data^=immersiveReader]")!!.attr("x-data")
-        val pagesJs = xData.substringAfter("JSON.parse('", "").substringBefore("')")
-        if (pagesJs.isEmpty()) throw Exception("Log in via WebView and purchase this chapter to read.")
+    // ============================= Utilities =============================
 
-        val pagesJson = "\"$pagesJs\"".parseAs<String>()
-        return pagesJson.parseAs<List<PageDto>>().mapIndexed { i, page ->
-            Page(i, imageUrl = page.path)
-        }
-    }
-    <-- TACH */
+    // Covers are plain <img> tags since the site redesign.
+    override fun Element.getImageUrl(selector: String): String? = selectFirst("img[alt$=' cover']")?.attr("abs:src")
 }
 
 /* TACH -->
