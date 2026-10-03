@@ -1,5 +1,8 @@
 package keiyoushi.source
 
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.squareup.zstd.okio.zstdCompress
 import com.squareup.zstd.okio.zstdDecompress
@@ -17,6 +20,7 @@ import keiyoushi.network.RateLimitInterceptor
 import keiyoushi.utils.ForegroundActivity
 import keiyoushi.utils.applicationContext
 import keiyoushi.utils.firstInstanceOrNull
+import keiyoushi.utils.injektOrAddByKey
 import keiyoushi.utils.jsonInstance
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +65,35 @@ abstract class KeiSource : HttpSource() {
         }
 
         // TACH -->
+        injektOrAddByKey("PATCH_CLOUDFLARE_INTERCEPTOR") {
+            // Patch CloudflareInterceptor in network client
+            OkHttpClient::class.java.getDeclaredField("interceptors").apply {
+                isAccessible = true
+                set(
+                    network.client,
+                    network.client.interceptors.map {
+                        if (it.javaClass.simpleName == "CloudflareInterceptor") CloudflareInterceptor else it
+                    },
+                )
+            }
+
+            // Reload all extensions
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    val extensionLoader = Class
+                        .forName("eu.kanade.tachiyomi.extension.util.ExtensionLoader")
+                        .getDeclaredField("INSTANCE")
+                        .get(null)
+                    extensionLoader.javaClass.getMethod("loadExtensions", Context::class.java).apply {
+                        isAccessible = true
+                        invoke(extensionLoader, applicationContext)
+                    }
+                } catch (_: Throwable) {}
+            }
+
+            true
+        }
+
         // make `ForegroundActivity` not lazy
         ForegroundActivity.current
         // <-- TACH
