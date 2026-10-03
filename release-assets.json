@@ -21,12 +21,12 @@
   },
   "eu.kanade.tachiyomi.extension.en.artlapsa": {
     "apk": {
-      "name": "tachiyomi-en.artlapsa-v1.6.28.apk",
-      "sha256": "7f6e85ed543700ba7dd988a7265fb20005fe98129d38f0786b329335f430d69e"
+      "name": "tachiyomi-en.artlapsa-v1.6.29.apk",
+      "sha256": "e50648b040e6be17556ad8a62c4a6aefdcfc84869884af405568be54c1d60159"
     },
     "jar": {
-      "name": "tachiyomi-en.artlapsa-v1.6.28.jar",
-      "sha256": "8742f4057accce07492c409eb91597157df4f7a4bcbb3ce4c34788cbcd71a5aa"
+      "name": "tachiyomi-en.artlapsa-v1.6.29.jar",
+      "sha256": "d9eba2ba6b293757993b343eb1d67db91b4ea84b1d90028cf5f5d488b77bfef9"
     }
   },
   "eu.kanade.tachiyomi.extension.en.asmotoon": {
