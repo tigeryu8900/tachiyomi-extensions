@@ -17,7 +17,28 @@ import org.jsoup.nodes.Document
 
 @Source
 abstract class ArtLapsa : Keyoapp() {
-    private val cdnUrl = baseUrl.toHttpUrl().let { "${it.scheme}://cdn.${it.host}" }
+
+    // ============================== Popular ==============================
+
+    // The home page only renders a fixed top-20 carousel, so use the paginated
+    // search listing sorted by popularity instead.
+    override suspend fun getPopularManga(page: Int): MangasPage {
+        val url = "$baseUrl/search".toHttpUrl().newBuilder()
+            .addQueryParameter("sort", "popular")
+            .addQueryParameter("page", page.toString())
+            .build()
+
+        return parseSearchManga(client.get(url))
+    }
+
+    // =============================== Latest ==============================
+
+    override suspend fun getLatestUpdates(page: Int) = latestUpdatesParse(client.get("$baseUrl/latest?page=$page").asJsoup())
+
+    // The next page link is only rendered while more chapters exist.
+    override fun latestUpdatesNextPageSelector() = "a[href*='?page=']"
+
+    // ============================== Search ===============================
 
     override suspend fun requestGeneres() = client.get("$baseUrl/search")
 
@@ -65,6 +86,8 @@ abstract class ArtLapsa : Keyoapp() {
     data class SeriesLD(
         val url: String,
     )
+
+    private val cdnUrl = baseUrl.toHttpUrl().let { "${it.scheme}://cdn.${it.host}" }
 
     override fun pageListParse(document: Document): List<Page> {
         val data = document
