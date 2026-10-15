@@ -52,7 +52,7 @@ updated_release_assets = {
     package_name: assets
     for package_name, assets in release_assets.items()
     if not full_rebuild
-    and not any(package_name.endswith(f".{module}") for module in to_delete)
+       and not any(package_name.endswith(f".{module}") for module in to_delete)
 }
 
 # Build index entries for the freshly built apks. Each extension's metadata comes from the
