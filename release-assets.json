@@ -39,6 +39,16 @@
       "sha256": "25f0ff8e11673cbd23430b3513e6514e236df028cdac0e4b12e227237a2598cb"
     }
   },
+  "eu.kanade.tachiyomi.extension.en.keroscans": {
+    "apk": {
+      "name": "tachiyomi-en.keroscans-v1.6.1.apk",
+      "sha256": "e630ae1da373651052f5d24fd0d91af6748f9bdbd9e42cc8797762b9ef4c9ef1"
+    },
+    "jar": {
+      "name": "tachiyomi-en.keroscans-v1.6.1.jar",
+      "sha256": "31ca848015a6c34cf13fc6b00a1e4bf00bbff447ebe04b0273430c08e01634cf"
+    }
+  },
   "eu.kanade.tachiyomi.extension.en.mangabat": {
     "apk": {
       "name": "tachiyomi-en.mangabat-v1.6.23.apk",

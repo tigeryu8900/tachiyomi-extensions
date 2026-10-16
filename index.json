@@ -488,6 +488,27 @@
         ]
       },
       {
+        "name": "KeroScans",
+        "packageName": "eu.kanade.tachiyomi.extension.en.keroscans",
+        "resources": {
+          "apkUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/b98639a/tachiyomi-en.keroscans-v1.6.1.apk",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main/src/en/keroscans/res/mipmap-xhdpi/ic_launcher.png",
+          "jarUrl": "https://github.com/tigeryu8900/tachiyomi-extensions/releases/download/b98639a/tachiyomi-en.keroscans-v1.6.1.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106001",
+        "versionName": "1.6.1",
+        "contentWarning": "CONTENT_WARNING_MIXED",
+        "sources": [
+          {
+            "id": "7842256049285233541",
+            "name": "KeroScans",
+            "language": "en",
+            "homeUrl": "https://keroscans.net"
+          }
+        ]
+      },
+      {
         "name": "Mangabat",
         "packageName": "eu.kanade.tachiyomi.extension.en.mangabat",
         "resources": {
