@@ -42,11 +42,11 @@
   "eu.kanade.tachiyomi.extension.en.keroscans": {
     "apk": {
       "name": "tachiyomi-en.keroscans-v1.6.6.apk",
-      "sha256": "7eb6b42114dbeb700d32cfb41edc6e11bad5b57eb5bea135f8502cf8e8484afc"
+      "sha256": "6b155203add24094ec6f896210e10cb7506ec6be37aed5d7d90a66129f66f521"
     },
     "jar": {
       "name": "tachiyomi-en.keroscans-v1.6.6.jar",
-      "sha256": "71ee5a0c32fdb9bb11f9650e8bdce08e3ca224268fef79f01b0c67fc9d6eade2"
+      "sha256": "edd6efa46424da0293e7a6b26793eb30c87d20d696bc344df685c6c6e8450ae8"
     }
   },
   "eu.kanade.tachiyomi.extension.en.mangabat": {
