@@ -18,9 +18,7 @@ ARTIFACTS_DIR = Path.home() / "apk-artifacts"
 # The checked-out `repo` branch we publish into (the working directory).
 REPO_DIR = Path.cwd()
 
-# TACH -->
-ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/tigeryu8900/tachiyomi-extensions@main"
-# <-- TACH
+ICON_BASE_URL = "https://cdn.jsdelivr.net/gh/keiyoushi/extensions-source@main"
 RELEASE_BASE_URL = f"https://github.com/{REPO_NAME}/releases/download"
 ASSET_LIMIT = 495  # Actual limit is 1000 but we upload 2 items per extension.
 UPLOAD_CHUNK_SIZE = 80
@@ -52,7 +50,7 @@ updated_release_assets = {
     package_name: assets
     for package_name, assets in release_assets.items()
     if not full_rebuild
-       and not any(package_name.endswith(f".{module}") for module in to_delete)
+    and not any(package_name.endswith(f".{module}") for module in to_delete)
 }
 
 # Build index entries for the freshly built apks. Each extension's metadata comes from the
@@ -105,12 +103,12 @@ for info_file in ARTIFACTS_DIR.glob("**/keiyoushi-source-info.json"):
     }
     old_assets = release_assets.get(package_name, {})
     apk_changed = (
-            package_name not in remote_extensions
-            or old_assets.get("apk") != assets["apk"]
+        package_name not in remote_extensions
+        or old_assets.get("apk") != assets["apk"]
     )
     jar_changed = (
-            package_name not in remote_extensions
-            or old_assets.get("jar") != assets["jar"]
+        package_name not in remote_extensions
+        or old_assets.get("jar") != assets["jar"]
     )
 
     updated_release_assets[package_name] = assets
@@ -237,14 +235,14 @@ if not changed_extensions:
 
 def create_release(tag: str):
     if run_gh(
-            "release",
-            "view",
-            tag,
-            "--repo",
-            REPO_NAME,
-            "--json",
-            "tagName",
-            success_errors=("release not found",),
+        "release",
+        "view",
+        tag,
+        "--repo",
+        REPO_NAME,
+        "--json",
+        "tagName",
+        success_errors=("release not found",),
     ):
         print(f"Release {tag} already exists")
         return
@@ -298,7 +296,7 @@ def upload_assets(tag: str, files: list[Path]):
         file
         for file in files
         if existing_assets.get(file.name)
-           != hashlib.sha256(file.read_bytes()).hexdigest()
+        != hashlib.sha256(file.read_bytes()).hexdigest()
     ]
     skipped = len(files) - len(files_to_upload)
     print(f"Uploading {len(files_to_upload)} assets to {tag}, skipping {skipped}")

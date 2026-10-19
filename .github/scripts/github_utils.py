@@ -40,7 +40,7 @@ def run_gh(*args: str, success_errors: tuple[str, ...] = ()) -> str:
                 retry_delay = max(
                     int(rate_limit.stdout.strip()) - int(time.time()) + 10,
                     RETRY_BASE_DELAY,
-                    )
+                )
         else:
             raise RuntimeError(f"gh {' '.join(args)} failed: {result.stderr.strip()}")
 

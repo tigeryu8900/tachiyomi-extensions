@@ -15,89 +15,89 @@ or fix them directly by submitting a Pull Request.
 ## Table of Contents
 
 - [Contributing](#contributing)
-    - [Table of Contents](#table-of-contents)
-    - [Prerequisites](#prerequisites)
-        - [Tools](#tools)
-        - [Cloning the repository](#cloning-the-repository)
-    - [Getting help](#getting-help)
-    - [Writing an extension](#writing-an-extension)
-        - [Setting up a new Gradle module](#setting-up-a-new-gradle-module)
-            - [Using ext-bootstrap.py](#using-ext-bootstrappy)
-        - [Loading a subset of Gradle modules](#loading-a-subset-of-gradle-modules)
-            - [Extension file structure](#extension-file-structure)
-            - [build.gradle.kts](#buildgradlekts)
-        - [Source declaration](#source-declaration)
-            - [Annotate your source class](#annotate-your-source-class)
-            - [Declare sources in build.gradle.kts](#declare-sources-in-buildgradlekts)
-            - [baseUrl modes](#baseurl-modes)
-            - [Multiple sources from one class](#multiple-sources-from-one-class)
-        - [Core dependencies](#core-dependencies)
-            - [Extension API](#extension-api)
-            - [lib tools](#lib-tools)
-            - [Available libs](#available-libs)
-            - [Adding a lib dependency](#adding-a-lib-dependency)
-            - [Creating a new lib](#creating-a-new-lib)
-            - [keiyoushi.utils (core utilities)](#keiyoushiutils-core-utilities)
-                - [JSON parsing - `parseAs`](#json-parsing---parseas)
-                - [JSON serialization - `toJsonString` / `toJsonRequestBody` / `toJsonElement`](#json-serialization---tojsonstring--tojsonrequestbody--tojsonelement)
-                - [JSON models (DTOs) and serialization](#json-models-dtos-and-serialization)
-                - [Protobuf parsing and serialization - `parseAsProto` / `toRequestBodyProto`](#protobuf-parsing-and-serialization---parseasproto--torequestbodyproto)
-                - [Date parsing - `tryParse` helpers](#date-parsing---tryparse-helpers)
-                - [HTTP requests - `OkHttpClient.get` / `post` / `put` / `head`](#http-requests---okhttpclientget--post--put--head)
-                - [Rate limiting - `rateLimit`](#rate-limiting---ratelimit)
-                - [Custom cookies - `addCookie`](#custom-cookies---addcookie)
-                - [WebView execution - `runWebView` / `getLocalStorage`](#webview-execution---runwebview--getlocalstorage)
-                - [Filter helpers - `firstInstance` / `firstInstanceOrNull`](#filter-helpers---firstinstance--firstinstanceornull)
-                - [SharedPreferences - `getPreferences` / `getPreferencesLazy`](#sharedpreferences---getpreferences--getpreferenceslazy)
-                - [Next.js data extraction - `extractNextJs` / `extractNextJsRsc`](#nextjs-data-extraction---extractnextjs--extractnextjsrsc)
-                - [Extracting URLs - `setUrlWithoutDomain` + `absUrl`](#extracting-urls---seturlwithoutdomain--absurl)
-                - [GraphQL Requests - `graphQLBody` / `parseGraphQLAs`](#graphql-requests---graphqlbody--parsegraphqlas)
-                - [GraphQL GET requests - `graphQLGet`](#graphql-get-requests---graphqlget)
-                - [JsonElement accessor helpers](#jsonelement-accessor-helpers)
-                - [ZIP streaming - `zipDirectoryAsync` / `readZipEntry`](#zip-streaming---zipdirectoryasync--readzipentry)
-                - [Jsoup helpers - `asJsoup` / `attrOrNull` / `textOrNull`](#jsoup-helpers---asjsoup--attrornull--textornull)
-                - [Cryptography - `decodeHex` / `rc4` / AES helpers](#cryptography---decodehex--rc4--aes-helpers)
-                - [Binary endian helpers](#binary-endian-helpers)
-                - [Decompression - `Inflater.inflate`](#decompression---inflaterinflate)
-                - [SeedRandom - seeded pseudo-random generator](#seedrandom---seeded-pseudo-random-generator)
-            - [Additional dependencies](#additional-dependencies)
-        - [Extension main class](#extension-main-class)
-            - [KeiSource](#keisource)
-            - [Main class key variables](#main-class-key-variables)
-        - [HTML and Image Processing](#html-and-image-processing)
-        - [Extension call flow](#extension-call-flow)
-            - [Popular Manga](#popular-manga)
-            - [Latest Manga](#latest-manga)
-            - [Manga Search](#manga-search)
-                - [Filters](#filters)
-            - [Manga Details](#manga-details)
-            - [Chapter](#chapter)
-            - [Chapter Pages](#chapter-pages)
-        - [Misc notes](#misc-notes)
-        - [Advanced Extension features](#advanced-extension-features)
-            - [Extension logic and app features](#extension-logic-and-app-features)
-            - [Configurable Sources and Preferences](#configurable-sources-and-preferences)
-            - [URL intent filter](#url-intent-filter)
-            - [Update strategy](#update-strategy)
-            - [Renaming existing sources](#renaming-existing-sources)
-                - [Moving a source to a different directory](#moving-a-source-to-a-different-directory)
-    - [Multi-source themes](#multi-source-themes)
-        - [Creating a new theme](#creating-a-new-theme)
-            - [Theme directory structure](#theme-directory-structure)
-            - [Theme build.gradle.kts](#theme-buildgradlekts)
-            - [Theme main class](#theme-main-class)
-        - [Using a Theme](#using-a-theme)
-    - [Running](#running)
-    - [Debugging](#debugging)
-        - [Android Debugger](#android-debugger)
-        - [Logs](#logs)
-        - [Inspecting network calls](#inspecting-network-calls)
-        - [Using external network inspecting tools](#using-external-network-inspecting-tools)
-            - [Set up your proxy server](#set-up-your-proxy-server)
-            - [OkHttp proxy setup](#okhttp-proxy-setup)
-    - [Building](#building)
-    - [Submitting the changes](#submitting-the-changes)
-        - [Pull Request checklist](#pull-request-checklist)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+    - [Tools](#tools)
+    - [Cloning the repository](#cloning-the-repository)
+  - [Getting help](#getting-help)
+  - [Writing an extension](#writing-an-extension)
+    - [Setting up a new Gradle module](#setting-up-a-new-gradle-module)
+      - [Using ext-bootstrap.py](#using-ext-bootstrappy)
+    - [Loading a subset of Gradle modules](#loading-a-subset-of-gradle-modules)
+      - [Extension file structure](#extension-file-structure)
+      - [build.gradle.kts](#buildgradlekts)
+    - [Source declaration](#source-declaration)
+      - [Annotate your source class](#annotate-your-source-class)
+      - [Declare sources in build.gradle.kts](#declare-sources-in-buildgradlekts)
+      - [baseUrl modes](#baseurl-modes)
+      - [Multiple sources from one class](#multiple-sources-from-one-class)
+    - [Core dependencies](#core-dependencies)
+      - [Extension API](#extension-api)
+      - [lib tools](#lib-tools)
+      - [Available libs](#available-libs)
+      - [Adding a lib dependency](#adding-a-lib-dependency)
+      - [Creating a new lib](#creating-a-new-lib)
+      - [keiyoushi.utils (core utilities)](#keiyoushiutils-core-utilities)
+        - [JSON parsing - `parseAs`](#json-parsing---parseas)
+        - [JSON serialization - `toJsonString` / `toJsonRequestBody` / `toJsonElement`](#json-serialization---tojsonstring--tojsonrequestbody--tojsonelement)
+        - [JSON models (DTOs) and serialization](#json-models-dtos-and-serialization)
+        - [Protobuf parsing and serialization - `parseAsProto` / `toRequestBodyProto`](#protobuf-parsing-and-serialization---parseasproto--torequestbodyproto)
+        - [Date parsing - `tryParse` helpers](#date-parsing---tryparse-helpers)
+        - [HTTP requests - `OkHttpClient.get` / `post` / `put` / `head`](#http-requests---okhttpclientget--post--put--head)
+        - [Rate limiting - `rateLimit`](#rate-limiting---ratelimit)
+        - [Custom cookies - `addCookie`](#custom-cookies---addcookie)
+        - [WebView execution - `runWebView` / `getLocalStorage`](#webview-execution---runwebview--getlocalstorage)
+        - [Filter helpers - `firstInstance` / `firstInstanceOrNull`](#filter-helpers---firstinstance--firstinstanceornull)
+        - [SharedPreferences - `getPreferences` / `getPreferencesLazy`](#sharedpreferences---getpreferences--getpreferenceslazy)
+        - [Next.js data extraction - `extractNextJs` / `extractNextJsRsc`](#nextjs-data-extraction---extractnextjs--extractnextjsrsc)
+        - [Extracting URLs - `setUrlWithoutDomain` + `absUrl`](#extracting-urls---seturlwithoutdomain--absurl)
+        - [GraphQL Requests - `graphQLBody` / `parseGraphQLAs`](#graphql-requests---graphqlbody--parsegraphqlas)
+        - [GraphQL GET requests - `graphQLGet`](#graphql-get-requests---graphqlget)
+        - [JsonElement accessor helpers](#jsonelement-accessor-helpers)
+        - [ZIP streaming - `zipDirectoryAsync` / `readZipEntry`](#zip-streaming---zipdirectoryasync--readzipentry)
+        - [Jsoup helpers - `asJsoup` / `attrOrNull` / `textOrNull`](#jsoup-helpers---asjsoup--attrornull--textornull)
+        - [Cryptography - `decodeHex` / `rc4` / AES helpers](#cryptography---decodehex--rc4--aes-helpers)
+        - [Binary endian helpers](#binary-endian-helpers)
+        - [Decompression - `Inflater.inflate`](#decompression---inflaterinflate)
+        - [SeedRandom - seeded pseudo-random generator](#seedrandom---seeded-pseudo-random-generator)
+      - [Additional dependencies](#additional-dependencies)
+    - [Extension main class](#extension-main-class)
+      - [KeiSource](#keisource)
+      - [Main class key variables](#main-class-key-variables)
+    - [HTML and Image Processing](#html-and-image-processing)
+    - [Extension call flow](#extension-call-flow)
+      - [Popular Manga](#popular-manga)
+      - [Latest Manga](#latest-manga)
+      - [Manga Search](#manga-search)
+        - [Filters](#filters)
+      - [Manga Details](#manga-details)
+      - [Chapter](#chapter)
+      - [Chapter Pages](#chapter-pages)
+    - [Misc notes](#misc-notes)
+    - [Advanced Extension features](#advanced-extension-features)
+      - [Extension logic and app features](#extension-logic-and-app-features)
+      - [Configurable Sources and Preferences](#configurable-sources-and-preferences)
+      - [URL intent filter](#url-intent-filter)
+      - [Update strategy](#update-strategy)
+      - [Renaming existing sources](#renaming-existing-sources)
+        - [Moving a source to a different directory](#moving-a-source-to-a-different-directory)
+  - [Multi-source themes](#multi-source-themes)
+    - [Creating a new theme](#creating-a-new-theme)
+      - [Theme directory structure](#theme-directory-structure)
+      - [Theme build.gradle.kts](#theme-buildgradlekts)
+      - [Theme main class](#theme-main-class)
+    - [Using a Theme](#using-a-theme)
+  - [Running](#running)
+  - [Debugging](#debugging)
+    - [Android Debugger](#android-debugger)
+    - [Logs](#logs)
+    - [Inspecting network calls](#inspecting-network-calls)
+    - [Using external network inspecting tools](#using-external-network-inspecting-tools)
+      - [Set up your proxy server](#set-up-your-proxy-server)
+      - [OkHttp proxy setup](#okhttp-proxy-setup)
+  - [Building](#building)
+  - [Submitting the changes](#submitting-the-changes)
+    - [Pull Request checklist](#pull-request-checklist)
 
 ## Prerequisites
 
@@ -108,10 +108,10 @@ that existing contributors will not actively teach these to you.
 - [Kotlin](https://kotlinlang.org/)
 - Java Development Kit (JDK) 17 or higher (required by the Gradle build system and Android Gradle Plugin)
 - Web scraping
-    - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
-    - [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors)
-    - [OkHttp](https://square.github.io/okhttp/)
-    - [JSoup](https://jsoup.org/)
+  - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+  - [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors)
+  - [OkHttp](https://square.github.io/okhttp/)
+  - [JSoup](https://jsoup.org/)
 
 ### Tools
 
@@ -265,8 +265,8 @@ $ python ext-bootstrap.py -n "My Source" -l en -u https://mysource.com
 
 This creates `src/<lang>/<mysourcename>/build.gradle.kts` along with the extension's package
 directory and a starter source class. New (non-multisrc) sources are scaffolded extending
-`KeiSource` with `libVersion = "1.6"`; sources based on an existing multisrc theme (`-m`) inherit
-whatever base class and `libVersion` that theme uses.
+`KeiSource` with `libVersion = "1.6"`; sources based on an existing multisrc theme (`-m`) extend
+that theme's base class and use its `libVersion`.
 
 Available options:
 
@@ -366,7 +366,7 @@ At least one `source {}` block is required for every extension.
 | `name`           | The name of the extension. Should be romanized if site name is not in English.                                                                                                                                                            |
 | `versionCode`    | The extension version code. This must be a positive integer and incremented with any change to the code. Do not bump for changes that do not affect users, such as changing a private function to a public function.                      |
 | `contentWarning` | Content safety classification. Must be set explicitly to one of `ContentWarning.SAFE`, `ContentWarning.MIXED`, or `ContentWarning.NSFW`.                                                                                                  |
-| `libVersion`     | The extension library version. All new extensions must set this to `"1.6"` and implement `KeiSource` (see [Extension main class](#extension-main-class)). `"1.4"` is legacy and only found in extensions that have not yet been migrated. |
+| `libVersion`     | The extension library version. Must be `"1.6"`; the source class must implement `KeiSource` (see [Extension main class](#extension-main-class)). |
 | `theme`          | Name of a multi-source theme from `lib-multisrc/` to inherit from (e.g. `"madara"`). When set, the extension's version code is `theme.baseVersionCode + versionCode`.                                                                     |
 | `pkgName`        | Overrides the application ID suffix (defaults to `<lang>.<source dir>` derived from the module path). Only needed when moving a module to a different directory - see [Moving a source to a different directory](#moving-a-source-to-a-different-directory). |
 | `source {}`      | Declares one source (or multiple, for multi-language or multi-mirror extensions) using KSP code generation. This block is mandatory. See [Source declaration](#source-declaration).                                                       |
@@ -394,7 +394,7 @@ abstract class MySource : KeiSource() {
 }
 ```
 
-New sources must extend `KeiSource` (with `libVersion = "1.6"`), never `HttpSource` directly - see [Extension main class](#extension-main-class) for details.
+Sources must extend `KeiSource` (with `libVersion = "1.6"`), never `HttpSource` directly; the build fails otherwise - see [Extension main class](#extension-main-class) for details.
 
 #### Declare sources in build.gradle.kts
 
@@ -534,6 +534,7 @@ use case. Each lib is self-documented via KDoc comments in its Kotlin source fil
 | [`lib-e4p`](https://github.com/keiyoushi/extensions-source/tree/main/lib/e4p)                             | Decodes and decrypts E4P-format manga page archives (TIFF/XEBP)                         |
 | [`lib-ece`](https://github.com/keiyoushi/extensions-source/tree/main/lib/ece)                             | RFC 8188 `aes128gcm` decryption, HKDF key derivation, and P-256 raw point helpers       |
 | [`lib-i18n`](https://github.com/keiyoushi/extensions-source/tree/main/lib/i18n)                           | Internationalization helper (`Intl`) for multi-language UI strings in extensions        |
+| [`lib-imagedecoder`](https://github.com/keiyoushi/extensions-source/tree/main/lib/imagedecoder)           | Decodes images to a `Bitmap` with the host app's decoder (AVIF, JPEG XL, HEIF)          |
 | [`lib-lzstring`](https://github.com/keiyoushi/extensions-source/tree/main/lib/lzstring)                   | LZ-String decompression and compression                                                 |
 | [`lib-publus`](https://github.com/keiyoushi/extensions-source/tree/main/lib/publus)                       | Handles Publus DRM-protected reader decryption, unscrambling, and page loading          |
 | [`lib-randomua`](https://github.com/keiyoushi/extensions-source/tree/main/lib/randomua)                   | Fetches and rotates real-world User-Agent strings (requires overriding `getMangaUrl()`) |
@@ -542,7 +543,6 @@ use case. Each lib is self-documented via KDoc comments in its Kotlin source fil
 | [`lib-synchrony`](https://github.com/keiyoushi/extensions-source/tree/main/lib/synchrony)                 | JavaScript deobfuscation via the Synchrony engine (QuickJS sandbox)                     |
 | [`lib-textinterceptor`](https://github.com/keiyoushi/extensions-source/tree/main/lib/textinterceptor)     | Renders plain text or HTML as a PNG image page                                          |
 | [`lib-unpacker`](https://github.com/keiyoushi/extensions-source/tree/main/lib/unpacker)                   | Unpacks Dean Edwards-packed JavaScript; substring extraction helpers                    |
-| [`lib-zipinterceptor`](https://github.com/keiyoushi/extensions-source/tree/main/lib/zipinterceptor)       | Decodes, stitches, and processes multi-page ZIP/AVIF/SVG image archives                 |
 
 > [!IMPORTANT]
 > If your module uses `:lib:randomua`, the Spotless check requires your extension to override the `getMangaUrl()` method in your main class, or the build will fail.
@@ -886,16 +886,16 @@ val html = runWebView<String> {
 
 - `runWebView(timeout, configure)` suspends until `resolve`/`reject` is called inside `configure`, or `timeout` (default 30s) elapses; it always runs on the main thread internally.
 - The `WebViewScope` DSL exposes:
-    - **Settings:** `javaScriptEnabled`, `domStorageEnabled`, `blockImages`, `useWideViewPort`, `loadWithOverviewMode`, `userAgent` (spoofs matching `Sec-CH-UA` client hints on Chromium 119+), and `includeCookiesOnIntercept` (Chromium 138+; includes the `Cookie` header in requests passed to `interceptRequest`, and accepts `Set-Cookie` from responses it returns). Audio is always muted automatically across all `runWebView` instances (Chromium 122+).
-    - **Navigation hooks:** `onPageStarted`, `onPageFinished`, `onReceivedError`.
-    - **Request interception:** `interceptRequest` to inspect/replace/block resource loads (runs on a background thread).
-    - **Pre-DOM JavaScript Injection** (like the bridges below, call these before `loadUrl`/`loadData`; they only apply to later navigations):
-        - `injectAtDocumentStart(script, allowedOriginRules)`: Injects JavaScript before any page or inline script runs on matching origins. Returns a `ScriptHandle` with `.remove()` to cancel future injections. Essential for hooking APIs (`window.fetch`, `XMLHttpRequest`, `WebSocket`, etc.) before anti-bot scripts execute. Requires Chromium 91+; on older engines (< Chromium 91), falls back to `onPageStarted` injection with debug logging - the fallback only reaches the main frame and may run after inline scripts.
-        - `addJavaScriptOnEvent(script, event, worldName, allowedOriginRules)`: Injects on `InjectionEvent.DOCUMENT_START` (default) or `InjectionEvent.DOCUMENT_END`, optionally targeting an isolated execution `worldName`. **Requires Chromium 146+**; has **no fallback** and immediately fails (`reject`s) on older engines.
-    - **JavaScript Bridges:**
-        - `webMessageBridge(name, allowedOriginRules, handler)`: Modern, asynchronous, origin-scoped 2-way message bridge (`window.<name>.postMessage(msg)` and `window.<name>.onmessage`). The handler receives `(message, replyProxy)` where `replyProxy.postMessage(reply)` and `replyProxy.evaluateJs(script)` can interact with the sender frame, and `replyProxy.sourceOrigin`/`replyProxy.isMainFrame` identify it. A simplified `(message) -> Unit` overload is also available. The handler runs on the main thread. The default `allowedOriginRules` of `*` lets every frame (including third-party iframes) post messages, so restrict it to the expected origin (e.g. `setOf("https://example.com")`) whenever a message can complete the run. Requires Chromium 82+ (`replyProxy.evaluateJs` requires Chromium 146+ and rejects otherwise); on legacy WebView engines (< Chromium 82), transparently falls back to an `addJavascriptInterface` bridge exposing `window.<name>.postMessage(message)` with debug logging (replying via `replyProxy` is unsupported on the fallback path and rejects; origin rules are ignored and the sender origin is null).
-        - `jsBridge(name, handler)`: Deprecated legacy synchronous bridge exposing `window.<name>.post(message)`. Supported on all Android versions. Use `webMessageBridge` instead.
-    - **Execution & Navigation:** `loadUrl`, `loadData`, `stopLoading`, `evaluateJs`, and `poll(interval)` to repeat checks on the main thread until resolved.
+  - **Settings:** `javaScriptEnabled`, `domStorageEnabled`, `blockImages`, `useWideViewPort`, `loadWithOverviewMode`, `userAgent` (spoofs matching `Sec-CH-UA` client hints on Chromium 119+), and `includeCookiesOnIntercept` (Chromium 138+; includes the `Cookie` header in requests passed to `interceptRequest`, and accepts `Set-Cookie` from responses it returns). Audio is always muted automatically across all `runWebView` instances (Chromium 122+).
+  - **Navigation hooks:** `onPageStarted`, `onPageFinished`, `onReceivedError`.
+  - **Request interception:** `interceptRequest` to inspect/replace/block resource loads (runs on a background thread).
+  - **Pre-DOM JavaScript Injection** (like the bridges below, call these before `loadUrl`/`loadData`; they only apply to later navigations):
+    - `injectAtDocumentStart(script, allowedOriginRules)`: Injects JavaScript before any page or inline script runs on matching origins. Returns a `ScriptHandle` with `.remove()` to cancel future injections. Essential for hooking APIs (`window.fetch`, `XMLHttpRequest`, `WebSocket`, etc.) before anti-bot scripts execute. Requires Chromium 91+; on older engines (< Chromium 91), falls back to `onPageStarted` injection with debug logging - the fallback only reaches the main frame and may run after inline scripts.
+    - `addJavaScriptOnEvent(script, event, worldName, allowedOriginRules)`: Injects on `InjectionEvent.DOCUMENT_START` (default) or `InjectionEvent.DOCUMENT_END`, optionally targeting an isolated execution `worldName`. **Requires Chromium 146+**; has **no fallback** and immediately fails (`reject`s) on older engines.
+  - **JavaScript Bridges:**
+    - `webMessageBridge(name, allowedOriginRules, handler)`: Modern, asynchronous, origin-scoped 2-way message bridge (`window.<name>.postMessage(msg)` and `window.<name>.onmessage`). The handler receives `(message, replyProxy)` where `replyProxy.postMessage(reply)` and `replyProxy.evaluateJs(script)` can interact with the sender frame, and `replyProxy.sourceOrigin`/`replyProxy.isMainFrame` identify it. A simplified `(message) -> Unit` overload is also available. The handler runs on the main thread. The default `allowedOriginRules` of `*` lets every frame (including third-party iframes) post messages, so restrict it to the expected origin (e.g. `setOf("https://example.com")`) whenever a message can complete the run. Requires Chromium 82+ (`replyProxy.evaluateJs` requires Chromium 146+ and rejects otherwise); on legacy WebView engines (< Chromium 82), transparently falls back to an `addJavascriptInterface` bridge exposing `window.<name>.postMessage(message)` with debug logging (replying via `replyProxy` is unsupported on the fallback path and rejects; origin rules are ignored and the sender origin is null).
+    - `jsBridge(name, handler)`: Deprecated legacy synchronous bridge exposing `window.<name>.post(message)`. Supported on all Android versions. Use `webMessageBridge` instead.
+  - **Execution & Navigation:** `loadUrl`, `loadData`, `stopLoading`, `evaluateJs`, and `poll(interval)` to repeat checks on the main thread until resolved.
 - For the common case of just reading a `localStorage` value after loading a page, use the ready-made `getLocalStorage(url, key)` helper instead of writing your own `runWebView` call.
 - `runWebViewBlocking(call, ...)` exists for non-suspend call sites (e.g. inside an OkHttp interceptor where you must pass the interceptor's chain.call()) - only use it there, never from a suspend function.
 
@@ -1288,10 +1288,9 @@ the main app has at the expense of app size.
 
 ### Extension main class
 
-The class annotated with `@Source` and referenced by your `source {}` block(s). **All new
-extensions must implement `KeiSource`** (`libVersion = "1.6"`). Existing extensions/themes still
-extending `HttpSource` directly are legacy (`libVersion = "1.4"`); do not use `HttpSource` directly
-for new sources.
+The class annotated with `@Source` and referenced by your `source {}` block(s). **All
+extensions must implement `KeiSource`** (`libVersion = "1.6"`), either directly or through a theme.
+A `@Source` class that extends `HttpSource` directly fails the build.
 
 > [!NOTE]
 > `className` is set to `keiyoushi.source.Generated` automatically by the build system.
@@ -1299,8 +1298,8 @@ for new sources.
 | Class              | Description                                                                                                                                                                                     |
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `SourceFactory`    | **Obsolete.** Used to expose multiple `Source`s manually. With `source {}` blocks, this is generated automatically.                                                                             |
-| `KeiSource`        | **The base class for all new online sources** (`libVersion = "1.6"`). A suspend-based API. Use this directly or extend a `KeiSource`-based theme base class. See [KeiSource](#keisource) below. |
-| `HttpSource`       | Legacy base class (`libVersion = "1.4"`). Only found in extensions/themes not yet migrated to `KeiSource`. Do not use for new sources.                                                          |
+| `KeiSource`        | **The base class for all online sources** (`libVersion = "1.6"`). A suspend-based API. Use this directly or extend a `KeiSource`-based theme base class. See [KeiSource](#keisource) below.     |
+| `HttpSource`       | Superclass of `KeiSource`. Do not extend it directly; `@Source` classes that do fail the build.                                                                                                 |
 | `ParsedHttpSource` | Deprecated, use `KeiSource` instead.                                                                                                                                                            |
 
 #### KeiSource
@@ -1393,12 +1392,12 @@ Behavior `KeiSource` gives you for free:
 
 - **Memory-efficient Image Interceptors:** When implementing interceptors for descrambling, stitching, or decrypting images, avoid loading the entire image into a `ByteArray`, as this can cause `OutOfMemoryError` on low-end devices. Prefer stream-based processing:
 
-    - **Read:** Use `response.body.byteStream()` with `BitmapFactory.decodeStream()` to decode images directly from the stream.
-    - **Write:** Write the processed bitmap into an Okio `Buffer` via `output.outputStream()` and convert it using `asResponseBody(mediaType)`.
-    - **Decryption:** Use Okio's `cipherSource` extension for stream-based decryption rather than decrypting a full byte array in memory.
-    - Note: `readByteArray()` should generally be avoided here because it forces full in-memory buffering of the image. Streaming directly keeps memory usage lower and more stable.
-    - Always wrap network responses in `response.use { ... }` to ensure the response body is properly closed and memory leaks are prevented.
-    - If applicable, call `bitmap.recycle()` after use to free native memory early.
+  - **Read:** Use `response.body.byteStream()` with `BitmapFactory.decodeStream()` to decode images directly from the stream.
+  - **Write:** Write the processed bitmap into an Okio `Buffer` via `output.outputStream()` and convert it using `asResponseBody(mediaType)`.
+  - **Decryption:** Use Okio's `cipherSource` extension for stream-based decryption rather than decrypting a full byte array in memory.
+  - Note: `readByteArray()` should generally be avoided here because it forces full in-memory buffering of the image. Streaming directly keeps memory usage lower and more stable.
+  - Always wrap network responses in `response.use { ... }` to ensure the response body is properly closed and memory leaks are prevented.
+  - If applicable, call `bitmap.recycle()` after use to free native memory early.
 
 - **Do not manually check for Cloudflare:** Do not manually check for Cloudflare challenges (e.g., checking for "Just a moment..." text) in `parse` methods. The app handles this before calling the parser.
 - **Prefer stable selectors:** Avoid relying on volatile auto-generated CSS class names (e.g., `styles_Card__jN8og`) or complex regex for parsing. Prefer stable structural selectors.
@@ -1416,7 +1415,7 @@ a.k.a. the Browse source entry point in the app (invoked by tapping on the sourc
 
 - The app calls `getPopularManga` which should return a `MangasPage` containing the first batch of
   found `SManga` entries.
-    - This method supports pagination. When user scrolls the manga list and more results must be fetched,
+  - This method supports pagination. When user scrolls the manga list and more results must be fetched,
       the app calls it again with increasing `page` values (starting with `page=1`). This continues while
       `MangasPage.hasNextPage` is passed as `true` and `MangasPage.mangas` is not empty.
 - To show the list properly, the app needs `url`, `title` and `thumbnail_url`. You **must** set them
@@ -1436,8 +1435,8 @@ the source name).
 
 - When the user searches inside the app, `getSearchMangaList` will be called and the rest of the
   flow is similar to what happens with `getPopularManga`.
-    - If search functionality is not available, return `MangasPage(emptyList(), false)`.
-    - If the query itself is a URL, `getMangaByUrl` is called instead - see [KeiSource](#keisource).
+  - If search functionality is not available, return `MangasPage(emptyList(), false)`.
+  - If the query itself is a URL, `getMangaByUrl` is called instead - see [KeiSource](#keisource).
 - `getFilterList` will be called to get all filters and filter types.
 
 ##### Filters
@@ -1476,22 +1475,22 @@ open class UriPartFilter(displayName: String, private val vals: Array<Pair<Strin
 
 - When a user taps on a manga, `fetchMangaUpdate` is called (with `fetchDetails`/`fetchChapters` set
   according to what's needed) and the results are cached.
-    - A `SManga` entry is identified by its `url`.
+  - A `SManga` entry is identified by its `url`.
 - `fetchDetails = true` asks for updated manga details.
-    - `SManga.initialized` tells the app whether details need fetching. You do not need to set it
+  - `SManga.initialized` tells the app whether details need fetching. You do not need to set it
       yourself: `getMangaUpdate` (the `final` wrapper around `fetchMangaUpdate`) always sets it to
       `true` on the returned manga.
-    - `SManga.genre` is a string containing a list of all genres separated by `", "`.
-    - `SManga.status` is an "enum" value. Refer to [the values in the `SManga` companion object](https://github.com/tachiyomiorg/extensions-lib/blob/8240b5cfecbd281bc737ac159ea7d4e5825ed3df/library/src/main/java/eu/kanade/tachiyomi/source/model/SManga.kt#L26).
-    - Backups store nearly all known manga fields (author, genre, description, thumbnail, chapters,
+  - `SManga.genre` is a string containing a list of all genres separated by `", "`.
+  - `SManga.status` is an "enum" value. Refer to [the values in the `SManga` companion object](https://github.com/tachiyomiorg/extensions-lib/blob/8240b5cfecbd281bc737ac159ea7d4e5825ed3df/library/src/main/java/eu/kanade/tachiyomi/source/model/SManga.kt#L26).
+  - Backups store nearly all known manga fields (author, genre, description, thumbnail, chapters,
       etc.), not just `url`/`title` - restoring a backup writes that stored data straight into the
       local library without a fresh network fetch. Fill in every field you can during
       `fetchMangaUpdate` (details), since there's no guarantee of another automatic re-fetch beyond
       a manual Swipe-to-Refresh.
-    - If a `SManga` is cached, details are only re-fetched when the user performs a manual update
+  - If a `SManga` is cached, details are only re-fetched when the user performs a manual update
       (Swipe-to-Refresh).
 - `fetchChapters = true` asks for the chapter list.
-    - **The list should be sorted descending by the source order**.
+  - **The list should be sorted descending by the source order**.
 - `getMangaUrl` is called when the user taps "Open in WebView". It defaults to `baseUrl + manga.url`;
   only override it if that doesn't already resolve to the manga's page on the website. In practice
   this is common, since `SManga.url` is recommended to hold just an ID/slug rather than a full
@@ -1501,16 +1500,16 @@ open class UriPartFilter(displayName: String, private val vals: Array<Pair<Strin
 
 - `SChapter.date_upload` is the [UNIX Epoch time](https://en.wikipedia.org/wiki/Unix_time)
   **expressed in milliseconds**.
-    - If you do not pass `SChapter.date_upload` and leave it at zero, the app will use the default date
+  - If you do not pass `SChapter.date_upload` and leave it at zero, the app will use the default date
       instead, but it is recommended to fill it if available.
-    - Use the `keiyoushi.utils` date helpers described in
+  - Use the `keiyoushi.utils` date helpers described in
       [Date parsing - `tryParse` helpers](#date-parsing---tryparse-helpers) to convert the source's
       date format into epoch milliseconds - they already return `0L` on failure, so no extra
       `runCatching`/fallback handling is needed on your end.
-    - If parsing fails, return `0L` so the app uses the default date
+  - If parsing fails, return `0L` so the app uses the default date
       instead.
-    - The app will overwrite the dates of existing chapters **UNLESS** `0L` is returned.
-    - If the source only provides the manga's update date, assign it to the latest chapter only.
+  - The app will overwrite the dates of existing chapters **UNLESS** `0L` is returned.
+  - If the source only provides the manga's update date, assign it to the latest chapter only.
 
 - `getChapterUrl` is called when the user taps "Open in WebView" in the reader. Like `getMangaUrl`,
   it defaults to `baseUrl + chapter.url`; override it only when that doesn't resolve to the chapter's
@@ -1796,12 +1795,12 @@ When no `host()` is specified in a theme `deeplink {}` block, the host is resolv
 | Field             | Description                                                                                                                                                                                                                                                              |
 |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `baseVersionCode` | The theme's base version code. This must be a positive integer and **incremented** whenever a change is made to the theme implementation that affects the extensions.                                                                                                    |
-| `libVersion`      | The extension library version. New themes must set this to `"1.6"` and have their main class extend `KeiSource`. `"1.4"` is legacy and only found in themes not yet migrated. Every extension using the theme inherits this value and must not set its own `libVersion`. |
+| `libVersion`      | The extension library version. Must be `"1.6"`, and the theme's main class must extend `KeiSource`. Every extension using the theme inherits this value and must not set its own `libVersion`. |
 | `deeplink {}`     | Declares URL deeplink patterns inherited by all extensions using this theme. See [URL intent filter](#url-intent-filter).                                                                                                                                                |
 
 #### Theme main class
 
-The theme's main class (e.g., `<ThemeName>.kt`) contains the default implementation for the source sites. It should be declared as an `abstract class` extending `KeiSource` (or `HttpSource` for themes still on `libVersion = "1.4"`), allowing individual extensions to inherit and override its properties and methods.
+The theme's main class (e.g., `<ThemeName>.kt`) contains the default implementation for the source sites. It should be declared as an `abstract class` extending `KeiSource`, allowing individual extensions to inherit and override its properties and methods.
 
 ```kotlin
 package eu.kanade.tachiyomi.multisrc.example // Replace 'example' with your theme name
@@ -1810,7 +1809,7 @@ import keiyoushi.source.KeiSource
 
 abstract class ExampleTheme : KeiSource() {
 
-    // name, lang, and baseUrl are inherited from KeiSource/HttpSource. They are automatically
+    // name, lang, and baseUrl are inherited from KeiSource. They are automatically
     // overridden and injected by the KSP generator via each extension's `source {}`
     // block. Do not declare them in the constructor.
 
