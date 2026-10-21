@@ -643,24 +643,25 @@ abstract class MangaBox :
             key = PREF_RETRIEVE_IMAGE_SIZE_RETRIES
             title = "Retries for retrieving image sizes"
             summary = "When merging split images, image sizes are retrieved from " +
-                "image metadata. This setting specifies the max number of retry " +
-                "attempts for retrieving image sizes."
+                "image metadata, retrying up to %s times."
             setDefaultValue("0")
             setVisible(mergeImages == true)
 
             setOnPreferenceChangeListener { _, newValue ->
                 // Update values
-                retrieveImageSizeRetries = (newValue as String).toIntOrNull().let {
-                    if (it == null || it < 0) {
-                        Toast.makeText(
-                            screen.context,
-                            "$newValue is not a valid nonnegative number.",
-                            Toast.LENGTH_LONG,
-                        ).show()
-                        0
-                    } else {
-                        it
-                    }
+                val newIntValue = (newValue as String).toIntOrNull()
+                if (newIntValue == null || newIntValue < 0) {
+                    Toast.makeText(
+                        screen.context,
+                        "$newValue is not a valid nonnegative number.",
+                        Toast.LENGTH_LONG,
+                    ).show()
+                    preferences
+                        .edit()
+                        .putString(PREF_RETRIEVE_IMAGE_SIZE_RETRIES, retrieveImageSizeRetries.toString())
+                        .apply()
+                } else {
+                    retrieveImageSizeRetries = newIntValue
                 }
                 true
             }
