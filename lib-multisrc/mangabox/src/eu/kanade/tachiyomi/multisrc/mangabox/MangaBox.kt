@@ -643,7 +643,7 @@ abstract class MangaBox :
             key = PREF_RETRIEVE_IMAGE_SIZE_RETRIES
             title = "Retries for retrieving image sizes"
             val summaryFormat = "When merging split images, image sizes are retrieved from " +
-                "image metadata, retrying up to %d times."
+                "image metadata to determine image groupings, retrying up to %d times per image."
             summary = summaryFormat.format(retrieveImageSizeRetries)
             setDefaultValue("0")
             setVisible(mergeImages == true)
