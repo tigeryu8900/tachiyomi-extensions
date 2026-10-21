@@ -642,8 +642,9 @@ abstract class MangaBox :
         val retrieveImageSizeRetriesPref = EditTextPreference(screen.context).apply {
             key = PREF_RETRIEVE_IMAGE_SIZE_RETRIES
             title = "Retries for retrieving image sizes"
-            summary = "When merging split images, image sizes are retrieved from " +
-                "image metadata, retrying up to %s times."
+            val summaryFormat = "When merging split images, image sizes are retrieved from " +
+                "image metadata, retrying up to %d times."
+            summary = summaryFormat.format(retrieveImageSizeRetries)
             setDefaultValue("0")
             setVisible(mergeImages == true)
 
@@ -653,7 +654,7 @@ abstract class MangaBox :
                 if (newIntValue == null || newIntValue < 0) {
                     Toast.makeText(
                         screen.context,
-                        "$newValue is not a valid nonnegative number.",
+                        "$newValue is not a valid retry count. Resetting to $retrieveImageSizeRetries.",
                         Toast.LENGTH_LONG,
                     ).show()
                     preferences
@@ -662,6 +663,7 @@ abstract class MangaBox :
                         .apply()
                 } else {
                     retrieveImageSizeRetries = newIntValue
+                    summary = summaryFormat.format(retrieveImageSizeRetries)
                 }
                 true
             }
