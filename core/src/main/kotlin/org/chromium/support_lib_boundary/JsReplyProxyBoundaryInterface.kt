@@ -2,9 +2,11 @@
 
 package org.chromium.support_lib_boundary
 
+/* TACH -->
 import java.lang.reflect.InvocationHandler
 
 internal interface JsReplyProxyBoundaryInterface {
     fun postMessage(message: String)
     fun executeJavaScript(script: String, callback: InvocationHandler)
 }
+<-- TACH */
