@@ -2,7 +2,7 @@
 
 package org.chromium.support_lib_boundary
 
-/* TACH -->
+import android.webkit.WebView
 import java.lang.reflect.InvocationHandler
 
 internal interface WebViewProviderFactoryBoundaryInterface {
@@ -10,4 +10,3 @@ internal interface WebViewProviderFactoryBoundaryInterface {
     val supportedFeatures: Array<String>
     fun createWebView(webView: WebView): InvocationHandler
 }
-<-- TACH */

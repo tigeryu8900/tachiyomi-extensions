@@ -21,6 +21,7 @@ android {
 dependencies {
     // TACH -->
     implementation("androidx.webkit:webkit:1.17.0") {
+        exclude(group = "org.chromium", module = "support_lib_boundary")
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
     //noinspection UseTomlInstead
