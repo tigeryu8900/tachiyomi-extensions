@@ -30,7 +30,9 @@ abstract class VineTheme :
     KeiSource(),
     ConfigurableSource {
 
-    private val preferences by getPreferencesLazy()
+    // TACH -->
+    protected val preferences by getPreferencesLazy()
+    // <-- TACH
 
     private val rscHeaders: Headers get() = headersBuilder().set("rsc", "1").build()
 

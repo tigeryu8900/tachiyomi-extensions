@@ -95,15 +95,11 @@ internal object NetworkInterceptor : Interceptor {
     ).execute()
 
     @Serializable
-    private class SaveResponse(
-        val job_id: String,
-    )
-
-    @Serializable
-    private class StatusResponse(
+    private class ResponseDTO(
         val status: String,
         val status_ext: String?,
         val timestamp: String?,
+        val job_id: String?,
     )
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -155,7 +151,7 @@ internal object NetworkInterceptor : Interceptor {
     ): String? = rateLimit().run {
         if (credentials?.isNotEmpty() == true) {
             spnCaptureSemaphore.withPermit {
-                val id = spn(
+                val saveResponseDTO = spn(
                     credentials,
                     FormBody
                         .Builder()
@@ -166,33 +162,36 @@ internal object NetworkInterceptor : Interceptor {
                         .add("capture_cookie", headers["Cookie"] ?: "")
                         .add("use_user_agent", headers["User-Agent"] ?: "")
                         .build(),
-                ).body.string().parseAs<SaveResponse>().job_id
+                ).body.string().parseAs<ResponseDTO>()
 
-                var statusResponse = spn(
+                val id = saveResponseDTO.job_id ?: run {
+                    saveResponseDTO.status_ext?.let { toast("Failed to archive page $url: $it") }
+                    return null
+                }
+
+                var responseDTO = spn(
                     credentials,
                     FormBody
                         .Builder()
                         .add("job_id", id)
                         .build(),
-                ).body.string().parseAs<StatusResponse>()
+                ).body.string().parseAs<ResponseDTO>()
 
-                while (statusResponse.status == "pending") {
-                    statusResponse = spn(
+                for (i in 1..6) {
+                    if (responseDTO.status != "pending") break
+                    Thread.sleep(((1000L shl i)..(2000L shl i)).random())
+                    responseDTO = spn(
                         credentials,
                         FormBody
                             .Builder()
                             .add("job_id", id)
                             .build(),
-                    ).body.string().parseAs<StatusResponse>()
-
-                    Thread.sleep(5000)
+                    ).body.string().parseAs<ResponseDTO>()
                 }
 
-                if (statusResponse.status_ext != null) {
-                    toast("Failed to archive page $url: ${statusResponse.status_ext}")
-                }
+                responseDTO.status_ext?.let { toast("Failed to archive page $url: $it") }
 
-                statusResponse.timestamp
+                responseDTO.timestamp
             }
         } else {
             captureSemaphore.withPermit {

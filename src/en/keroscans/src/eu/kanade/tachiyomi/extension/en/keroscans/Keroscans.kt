@@ -10,7 +10,10 @@ import okhttp3.OkHttpClient
 @Source
 // TACH -->
 abstract class Keroscans : VineTheme() {
-    override fun OkHttpClient.Builder.configureClient(): OkHttpClient.Builder = useWaybackMachine()
+    override fun OkHttpClient.Builder.configureClient(): OkHttpClient.Builder = useWaybackMachine(
+        """^\w+://keroscans\.net/.*""".toRegex(),
+        preferences,
+    )
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         super.setupPreferenceScreen(screen)
