@@ -5,14 +5,11 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.widget.Toast
-import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.multisrc.mangabox.imagesize.ImageSize
 import eu.kanade.tachiyomi.multisrc.mangabox.imagesize.WebpSizeGetter
 import eu.kanade.tachiyomi.network.GET
-import eu.kanade.tachiyomi.network.awaitSuccess
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -21,6 +18,9 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.SMangaUpdate
+import keiyoushi.network.Fetch
+import keiyoushi.network.call
+import keiyoushi.network.fetch
 import keiyoushi.network.get
 import keiyoushi.network.rateLimit
 import keiyoushi.source.KeiSource
@@ -34,7 +34,6 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -64,8 +63,6 @@ abstract class MangaBox :
 
     private fun SharedPreferences.getMergeImagesPref(): Boolean = getBoolean(PREF_MERGE_IMAGES, false)
 
-    private fun SharedPreferences.getImageSizeRetries(): Int = getString(PREF_RETRIEVE_IMAGE_SIZE_RETRIES, "0")?.toIntOrNull() ?: 0
-
     private val preferences: SharedPreferences by getPreferencesLazy()
 
     private var mergeImages: Boolean? = null
@@ -75,16 +72,6 @@ abstract class MangaBox :
             }
 
             field = preferences.getMergeImagesPref()
-            return field
-        }
-
-    private var retrieveImageSizeRetries: Int = -1
-        get() {
-            if (field != -1) {
-                return field
-            }
-
-            field = preferences.getImageSizeRetries()
             return field
         }
 
@@ -221,10 +208,6 @@ abstract class MangaBox :
         throw IOException("All CDN attempts failed.")
     }
 
-    // The origin header causes cache misses on Cloudflare,
-    // which significantly increases response time
-    override fun Headers.Builder.configureHeaders(): Headers.Builder = removeAll("Origin")
-
     open val popularUrlPath = "manga-list/hot-manga?page="
 
     open val latestUrlPath = "manga-list/latest-manga?page="
@@ -244,7 +227,7 @@ abstract class MangaBox :
         return MangasPage(mangas, hasNextPage)
     }
 
-    override suspend fun getPopularManga(page: Int): MangasPage = parsePopularManga(client.get("$baseUrl/$popularUrlPath$page"))
+    override suspend fun getPopularManga(page: Int): MangasPage = parsePopularManga(client.get("$baseUrl/$popularUrlPath$page", Fetch.DOCUMENT))
 
     open fun popularMangaFromElement(element: Element): SManga = mangaFromElement(element)
 
@@ -263,7 +246,7 @@ abstract class MangaBox :
         return MangasPage(mangas, hasNextPage)
     }
 
-    override suspend fun getLatestUpdates(page: Int): MangasPage = parseLatestUpdates(client.get("$baseUrl/$latestUrlPath$page"))
+    override suspend fun getLatestUpdates(page: Int): MangasPage = parseLatestUpdates(client.get("$baseUrl/$latestUrlPath$page", Fetch.DOCUMENT))
 
     open fun latestUpdatesFromElement(element: Element): SManga = mangaFromElement(element)
 
@@ -278,7 +261,7 @@ abstract class MangaBox :
                 .addQueryParameter("page", page.toString())
                 .build()
 
-            client.get(url)
+            client.get(url, Fetch.DOCUMENT)
         } else {
             val url = "$baseUrl/genre".toHttpUrl().newBuilder()
             var sort: String? = null
@@ -302,7 +285,7 @@ abstract class MangaBox :
             id?.let { url.addQueryParameter("filter", it) }
             url.addQueryParameter("page", page.toString())
 
-            client.get(url.build())
+            client.get(url.build(), Fetch.DOCUMENT)
         }
 
         val document = response.asJsoup()
@@ -346,7 +329,7 @@ abstract class MangaBox :
     override fun getMangaUrl(manga: SManga): String = "$baseUrl/manga/${getMangaSlug(manga)}"
 
     override suspend fun getMangaByUrl(url: HttpUrl): SManga? = parseMangaDetails(
-        client.get(url).asJsoup(),
+        client.get(url, Fetch.DOCUMENT).asJsoup(),
     )
 
     private fun checkForRedirectMessage(document: Document) {
@@ -407,7 +390,7 @@ abstract class MangaBox :
 
     open suspend fun parseChapterList(manga: SManga): List<SChapter> {
         val slug = getMangaSlug(manga)
-        val response = client.get("${apiChapterListUrl.replace("__SLUG__", slug)}?limit=-1")
+        val response = client.get("${apiChapterListUrl.replace("__SLUG__", slug)}?limit=-1", Fetch.XHR.from(manga.url))
         val apiResult = runCatching {
             response.parseAs<ApiResponse>()
         }.getOrElse { return emptyList() }
@@ -447,7 +430,7 @@ abstract class MangaBox :
     }
 
     override suspend fun getPageList(chapter: SChapter): List<Page> {
-        val response = client.get(getChapterUrl(chapter))
+        val response = client.get(getChapterUrl(chapter), Fetch.DOCUMENT)
         val document = response.asJsoup()
         val content = document.select("script:containsData(cdns =)").joinToString("\n") { it.data() }
         val cdns = extractArray(content, cdnsRegex) + extractArray(content, backupImageRegex)
@@ -477,17 +460,18 @@ abstract class MangaBox :
                 val headers = headersBuilder().set("Range", WebpSizeGetter.RANGE).build()
                 val deferredSizes = imageUrls.map { url ->
                     async {
-                        for (attempt in 0..retrieveImageSizeRetries) {
+                        for (attempt in 0..IMAGE_SIZE_RETRIES) {
                             if (attempt > 0) {
                                 delay((500 * (1 shl attempt)..<1000 * (1 shl attempt)).random().milliseconds)
                             }
                             try {
-                                val response = client.newCall(
+                                val response = client.call(
                                     GET(url, headers)
                                         .newBuilder()
                                         .tag(MangaBoxFallBackTag::class.java, MangaBoxFallBackTag())
+                                        .fetch(Fetch.IMAGE)
                                         .build(),
-                                ).awaitSuccess()
+                                )
                                 WebpSizeGetter(response.body.byteStream()).get()?.let {
                                     return@async it
                                 }
@@ -571,7 +555,7 @@ abstract class MangaBox :
         }
     }
 
-    override fun imageRequest(page: Page): Request = GET(
+    override fun getImageRequest(page: Page): Request = GET(
         page.imageUrl!!,
         headers, // Headers are sometimes not added for image requests for some reason
     )
@@ -630,56 +614,25 @@ abstract class MangaBox :
     // ============================= Utilities =============================
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
-        val mergeImagesPref = SwitchPreferenceCompat(screen.context).apply {
+        SwitchPreferenceCompat(screen.context).apply {
             key = PREF_MERGE_IMAGES
             title = "Merge Split Images"
             summary = "Images are sometimes split vertically. " +
                 "This setting enables detecting and merging split images. " +
                 "Note that this isn't 100% accurate."
             setDefaultValue(false)
-        }.also(screen::addPreference)
-
-        val retrieveImageSizeRetriesPref = EditTextPreference(screen.context).apply {
-            key = PREF_RETRIEVE_IMAGE_SIZE_RETRIES
-            title = "Retries for retrieving image sizes"
-            val summaryFormat = "When merging split images, image sizes are retrieved from " +
-                "image metadata to determine image groupings, retrying up to %d times per image."
-            summary = summaryFormat.format(retrieveImageSizeRetries)
-            setDefaultValue("0")
-            setVisible(mergeImages == true)
 
             setOnPreferenceChangeListener { _, newValue ->
                 // Update values
-                val newIntValue = (newValue as String).toIntOrNull()
-                if (newIntValue == null || newIntValue < 0) {
-                    Toast.makeText(
-                        screen.context,
-                        "$newValue is not a valid retry count. Resetting to $retrieveImageSizeRetries.",
-                        Toast.LENGTH_LONG,
-                    ).show()
-                    preferences
-                        .edit()
-                        .putString(PREF_RETRIEVE_IMAGE_SIZE_RETRIES, retrieveImageSizeRetries.toString())
-                        .apply()
-                } else {
-                    retrieveImageSizeRetries = newIntValue
-                    summary = summaryFormat.format(retrieveImageSizeRetries)
-                }
+                mergeImages = newValue as Boolean
                 true
             }
         }.also(screen::addPreference)
-
-        mergeImagesPref.setOnPreferenceChangeListener { _, newValue ->
-            // Update values
-            mergeImages = newValue as Boolean
-            retrieveImageSizeRetriesPref.setVisible(newValue)
-            true
-        }
     }
 
     companion object {
         private const val PREF_MERGE_IMAGES = "pref_merge_images"
-        private const val PREF_RETRIEVE_IMAGE_SIZE_RETRIES = "pref_retrieve_image_size_retries"
+        private const val IMAGE_SIZE_RETRIES = 3
         private const val URL_PREFIX = "https://"
 
         private val cdnsRegex = Regex("""cdns\s*=\s*\[([^]]+)]""")
