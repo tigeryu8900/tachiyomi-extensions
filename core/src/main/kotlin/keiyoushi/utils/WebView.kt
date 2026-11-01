@@ -463,9 +463,7 @@ class WebViewScope<T> internal constructor(
         check(loaded.compareAndSet(false, true)) { "load already called on this WebViewScope" }
     }
 
-    // TACH -->
-    fun runOnMain(block: () -> Unit) {
-        // <-- TACH
+    private fun runOnMain(block: () -> Unit) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             block()
         } else {

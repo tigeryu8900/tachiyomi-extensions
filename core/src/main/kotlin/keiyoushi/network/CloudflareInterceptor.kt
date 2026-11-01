@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.Toast
+import androidx.annotation.MainThread
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -14,6 +15,10 @@ import eu.kanade.tachiyomi.util.system.isOutdated
 import keiyoushi.utils.ForegroundActivity
 import keiyoushi.utils.injektOrAddByKey
 import keiyoushi.utils.runWebViewBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -24,6 +29,7 @@ import java.io.IOException
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import kotlin.time.Duration.Companion.milliseconds
 
 internal object CloudflareInterceptor : Interceptor {
     private val listenerScript = """
@@ -148,13 +154,14 @@ internal object CloudflareInterceptor : Interceptor {
         return true
     }
 
-    private fun WebView.sendTabSpace(): Boolean {
+    @MainThread
+    private suspend fun WebView.sendTabSpace(): Boolean {
         if (!dispatchKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)) return false
-        Thread.sleep((10L..100L).random())
+        delay((10..100).random().milliseconds)
         if (!dispatchKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_TAB)) return false
-        Thread.sleep((10L..100L).random())
+        delay((10..100).random().milliseconds)
         if (!dispatchKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SPACE)) return false
-        Thread.sleep((10L..100L).random())
+        delay((10..100).random().milliseconds)
         return dispatchKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SPACE)
     }
 
@@ -195,7 +202,7 @@ internal object CloudflareInterceptor : Interceptor {
                             webView.layOutHeadless()
                         }
 
-                        runOnMain {
+                        CoroutineScope(Dispatchers.Main).launch {
                             if (container != null) {
                                 val width = container.width.takeIf { it > 0 } ?: DEFAULT_WIDTH
                                 val height = container.height.takeIf { it > 0 } ?: DEFAULT_HEIGHT
@@ -210,22 +217,19 @@ internal object CloudflareInterceptor : Interceptor {
 
                             // Send Tab and Space to check the checkbox, and fall back to JavaScript solver
                             // if dispatchKeyEvent fails.
-                            // Use a separate thread to unblock the main thread.
-                            thread {
-                                if (!webView.sendTabSpace()) {
-                                    fail = true
-                                    webViewOutdated = webView.isOutdated()
-                                    resolve(false)
-                                    return@thread
-                                }
+                            if (!webView.sendTabSpace()) {
+                                fail = true
+                                webViewOutdated = webView.isOutdated()
+                                resolve(false)
+                                return@launch
+                            }
 
-                                // Challenge should complete in a short amount of time
-                                Thread.sleep(5000)
-                                if (!complete) {
-                                    fail = true
-                                    webViewOutdated = webView.isOutdated()
-                                    resolve(false)
-                                }
+                            // Challenge should complete in a short amount of time
+                            delay(5000.milliseconds)
+                            if (!complete) {
+                                fail = true
+                                webViewOutdated = webView.isOutdated()
+                                resolve(false)
                             }
                         }
                     }
