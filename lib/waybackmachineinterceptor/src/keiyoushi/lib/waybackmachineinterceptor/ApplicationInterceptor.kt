@@ -1,13 +1,10 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
-import android.app.Application
 import android.content.SharedPreferences
-import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.asResponseBody
 import okio.EOFException
-import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.IOException
 

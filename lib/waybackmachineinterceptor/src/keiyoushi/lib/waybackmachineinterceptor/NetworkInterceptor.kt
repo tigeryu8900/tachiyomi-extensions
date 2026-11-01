@@ -1,8 +1,6 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
-import android.app.Application
 import android.content.SharedPreferences
-import android.widget.Toast
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.network.POST
