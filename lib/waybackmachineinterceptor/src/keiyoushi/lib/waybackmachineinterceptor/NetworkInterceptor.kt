@@ -191,11 +191,7 @@ internal object NetworkInterceptor : Interceptor {
                 }
 
                 if (statusResponse.status_ext != null) {
-                    Toast.makeText(
-                        Injekt.get<Application>(),
-                        "Failed to archive page $url: ${statusResponse.status_ext}",
-                        Toast.LENGTH_LONG,
-                    ).show()
+                    toast("Failed to archive page $url: ${statusResponse.status_ext}")
                 }
 
                 statusResponse.timestamp
@@ -204,11 +200,7 @@ internal object NetworkInterceptor : Interceptor {
             captureSemaphore.withPermit {
                 getTimestamp("$SAVE_PREFIX$url".toHttpUrl()).also {
                     if (it == null) {
-                        Toast.makeText(
-                            Injekt.get<Application>(),
-                            "Failed to archive page $url",
-                            Toast.LENGTH_LONG,
-                        ).show()
+                        toast("Failed to archive page $url")
                     }
                 }
             }

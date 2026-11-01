@@ -1,9 +1,13 @@
 package keiyoushi.lib.waybackmachineinterceptor
 
 import android.content.SharedPreferences
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
+import keiyoushi.utils.applicationContext
 import okhttp3.OkHttpClient
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -60,6 +64,16 @@ fun setupWaybackMachinePreferenceScreen(screen: PreferenceScreen) {
         title = "Wayback Machine S3 credentials (optional)"
         summary = "Using S3 credentials increases the API limit for making captures. Log into archive.org, grab the S3 access and secret keys at https://archive.org/account/s3.php, and enter them in this format: access_key:secret_key"
     }.let(screen::addPreference)
+}
+
+internal fun toast(text: String) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
+        Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
+    } else {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
+        }
+    }
 }
 
 const val PREF_USE_WAYBACK_MACHINE = "pref_use_wayback_machine"

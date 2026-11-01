@@ -57,11 +57,7 @@ internal class ApplicationInterceptor(
                         salvagedBuffer.size,
                     )
 
-                Toast.makeText(
-                    Injekt.get<Application>(),
-                    "Response body truncated, response recovered",
-                    Toast.LENGTH_LONG,
-                ).show()
+                toast("Response body truncated, response recovered")
 
                 return response.newBuilder()
                     .body(recoveredBody)
