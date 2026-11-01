@@ -16,3 +16,10 @@ keiyoushi {
         lang = "en"
     }
 }
+
+// TACH -->
+dependencies {
+
+    implementation(project(":lib:waybackmachineinterceptor"))
+}
+// <-- TACH
