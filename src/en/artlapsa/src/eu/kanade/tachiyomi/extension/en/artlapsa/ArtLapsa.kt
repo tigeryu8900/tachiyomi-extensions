@@ -121,9 +121,10 @@ abstract class ArtLapsa : Keyoapp() {
             .parseAs<IssueLD>()
         val chapterID = data.url.substringAfterLast('/')
         val seriesID = data.isPartOf.url.substringAfterLast('/')
-        val revisionID = document
-            .selectFirst("meta[property=\"og:image\"]")
-            ?.attr("content")
+        val revisionID = (
+            document.selectFirst("link[rel=\"preload\"][as=\"image\"][href*=\"/revisions/\"]")?.attr("href")
+                ?: document.selectFirst("meta[property=\"og:image\"][content*=\"/revisions/\"]")?.attr("content")
+            )
             ?.substringAfter("/revisions/", "")
             ?.substringBefore('/')
 
