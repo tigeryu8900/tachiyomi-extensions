@@ -20,7 +20,7 @@ android {
 
 dependencies {
     // TACH -->
-    implementation("androidx.webkit:webkit:1.17.0") {
+    implementation(libs.androidx.webkit) {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
     //noinspection UseTomlInstead
@@ -33,5 +33,6 @@ dependencies {
 
     testImplementation(libs.bundles.common)
     testImplementation(libs.tachiyomi.lib.v16)
+    testImplementation(libs.androidx.webkit)
     testImplementation(libs.junit)
 }
