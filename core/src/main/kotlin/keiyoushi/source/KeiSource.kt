@@ -4,8 +4,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import com.squareup.zstd.okio.zstdCompress
 import com.squareup.zstd.okio.zstdDecompress
+import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.MangasPage
@@ -53,6 +55,8 @@ import okhttp3.zstd.Zstd
 import okio.buffer
 import okio.sink
 import okio.source
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
@@ -79,32 +83,54 @@ abstract class KeiSource : HttpSource() {
 
         // TACH -->
         injektOrAddByKey("PATCH_CLOUDFLARE_INTERCEPTOR") {
-            // Patch CloudflareInterceptor in network client
-            OkHttpClient::class.java.getDeclaredField("interceptors").apply {
-                isAccessible = true
-                set(
-                    network.client,
-                    network.client.interceptors.map {
-                        if (it.javaClass.simpleName == "CloudflareInterceptor") CloudflareInterceptor else it
-                    },
-                )
-            }
+            try {
+                val network = Injekt.get<NetworkHelper>()
 
-            // Reload all extensions
-            Handler(Looper.getMainLooper()).post {
-                try {
-                    val extensionLoader = Class
-                        .forName("eu.kanade.tachiyomi.extension.util.ExtensionLoader")
-                        .getDeclaredField("INSTANCE")
-                        .get(null)
-                    extensionLoader.javaClass.getMethod("loadExtensions", Context::class.java).apply {
+                // Patch CloudflareInterceptor in network client
+                NetworkHelper::class.java.getDeclaredField($$"client$delegate").let {
+                    it.isAccessible = true
+                    it.get(network)
+                }.let { delegate ->
+                    delegate.javaClass.getDeclaredField("_value").apply {
                         isAccessible = true
-                        invoke(extensionLoader, applicationContext)
+                        set(
+                            delegate,
+                            network
+                                .client
+                                .newBuilder()
+                                .apply {
+                                    interceptors().replaceAll {
+                                        if (it.javaClass.simpleName == "CloudflareInterceptor") CloudflareInterceptor else it
+                                    }
+                                }
+                                .build(),
+                        )
                     }
-                } catch (_: Throwable) {}
-            }
+                }
 
-            true
+                // Reload all extensions
+                Handler(Looper.getMainLooper()).post {
+                    try {
+                        val extensionLoader = Class
+                            .forName("eu.kanade.tachiyomi.extension.util.ExtensionLoader")
+                            .getDeclaredField("INSTANCE")
+                            .get(null)
+                        extensionLoader.javaClass.getMethod("loadExtensions", Context::class.java).apply {
+                            isAccessible = true
+                            invoke(extensionLoader, applicationContext)
+                        }
+                    } catch (_: Throwable) {
+                    }
+                }
+
+                true
+            } catch (e: Throwable) {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(applicationContext, e.stackTraceToString(), Toast.LENGTH_LONG).show()
+                }
+
+                false
+            }
         }
 
         // make `ForegroundActivity` not lazy
