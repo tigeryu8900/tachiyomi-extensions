@@ -59,4 +59,5 @@
 
 # TACH -->
 -dontwarn org.koin.**
+-keepnames class keiyoushi.network.CloudflareInterceptor
 # <-- TACH
