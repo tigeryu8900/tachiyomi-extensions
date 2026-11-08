@@ -16,9 +16,16 @@ import java.util.concurrent.atomic.AtomicReference
  * Adapted from https://github.com/unseensnick/Reikai/blob/14d3d54/core/common/src/main/kotlin/eu/kanade/tachiyomi/util/system/ForegroundActivity.kt
  */
 object ForegroundActivity : Application.ActivityLifecycleCallbacks {
-    private val last = injektOrAddByKey("FOREGROUND_ACTIVITY_LAST") {
-        applicationContext.registerActivityLifecycleCallbacks(this)
-        AtomicReference<Activity?>(null)
+    private val last = injektOrAddByKey<AtomicReference<Activity?>>("FOREGROUND_ACTIVITY_LAST") {
+        AtomicReference(null)
+    }
+
+    init {
+        injektOrUpdate<Application.ActivityLifecycleCallbacks>(
+            "FOREGROUND_ACTIVITY",
+            0L,
+            { it?.let { applicationContext.unregisterActivityLifecycleCallbacks(it) } },
+        ) { this.also { applicationContext.registerActivityLifecycleCallbacks(it) } }
     }
 
     val current: Activity? get() = last.get()?.takeIf { !it.isFinishing && !it.isDestroyed }

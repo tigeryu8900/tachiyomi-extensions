@@ -29,7 +29,7 @@ import keiyoushi.network.kind
 import keiyoushi.utils.ForegroundActivity
 import keiyoushi.utils.applicationContext
 import keiyoushi.utils.firstInstanceOrNull
-import keiyoushi.utils.injektOrAddByKey
+import keiyoushi.utils.injektOrUpdate
 import keiyoushi.utils.jsonInstance
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +82,7 @@ abstract class KeiSource : HttpSource() {
         }
 
         // TACH -->
-        injektOrAddByKey("PATCH_CLOUDFLARE_INTERCEPTOR") {
+        injektOrUpdate<Unit>("PATCH_CLOUDFLARE_INTERCEPTOR", 0L) {
             try {
                 val network = Injekt.get<NetworkHelper>()
 
@@ -122,14 +122,10 @@ abstract class KeiSource : HttpSource() {
                     } catch (_: Throwable) {
                     }
                 }
-
-                true
             } catch (e: Throwable) {
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(applicationContext, e.stackTraceToString(), Toast.LENGTH_LONG).show()
                 }
-
-                false
             }
         }
 

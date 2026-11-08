@@ -13,7 +13,7 @@ import androidx.webkit.WebViewFeature
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.util.system.isOutdated
 import keiyoushi.utils.ForegroundActivity
-import keiyoushi.utils.injektOrAddByKey
+import keiyoushi.utils.injektOrUpdate
 import keiyoushi.utils.runWebViewBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ internal object CloudflareInterceptor : Interceptor {
     private typealias LocksData = LinkedHashMap<String, Pair<ReentrantReadWriteLock, ReentrantReadWriteLock>>
 
     private val locks = object {
-        private val data = injektOrAddByKey<LocksData>("CLOUDFLARE_INTERCEPTOR_LOCKS_DATA") {
+        private val data = injektOrUpdate<LocksData>("CLOUDFLARE_INTERCEPTOR_LOCKS_DATA", 0L) {
             object : LocksData() {
                 private val MAX_CAPACITY = 256
 
